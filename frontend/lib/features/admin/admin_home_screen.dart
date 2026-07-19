@@ -4,7 +4,10 @@ import 'package:my_app/features/admin/manage_users_screen.dart';
 import 'package:my_app/core/services/auth_service.dart';
 import 'package:my_app/core/services/admin_service.dart';
 import 'package:my_app/features/admin/admin_category_screen.dart';
-import 'package:my_app/features/admin/add_edit_category_screen.dart';
+import 'package:my_app/features/admin/provider_applications_screen.dart';
+import 'package:my_app/features/admin/admin_provider_profiles.dart';
+import 'package:my_app/features/admin/manage_services_screen.dart';
+import 'package:my_app/features/admin/admin_orders_screen.dart';
 
 class AdminHomeScreen extends StatefulWidget {
   const AdminHomeScreen({super.key});
@@ -16,13 +19,14 @@ class AdminHomeScreen extends StatefulWidget {
 class _AdminHomeScreenState extends State<AdminHomeScreen> {
   String adminName = "Loading...";
   String adminEmail = "";
+
   bool isLoadingProfile = true;
+  bool isLoadingStats = true;
 
   int totalUsers = 0;
   int totalProviders = 0;
   int totalCustomers = 0;
   int inactiveCount = 0;
-  bool isLoadingStats = true;
 
   @override
   void initState() {
@@ -33,6 +37,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
 
   Future<void> _loadProfile() async {
     final result = await AuthService.getProfile();
+
     if (!mounted) return;
 
     if (result.success && result.data != null) {
@@ -42,35 +47,48 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         isLoadingProfile = false;
       });
     } else {
-      setState(() => isLoadingProfile = false);
+      setState(() {
+        isLoadingProfile = false;
+      });
     }
   }
 
   Future<void> _loadStats() async {
     final result = await AdminService.getAllUsers();
+
     if (!mounted) return;
 
     if (result.success && result.users != null) {
       final users = result.users!;
+
       setState(() {
         totalUsers = users.length;
-        totalProviders = users.where((u) => u.role == "service_provider").length;
-        totalCustomers = users.where((u) => u.role == "user").length;
-        inactiveCount = users.where((u) => !u.isActive).length;
+        totalProviders =
+            users.where((e) => e.role == "service_provider").length;
+        totalCustomers =
+            users.where((e) => e.role == "user").length;
+        inactiveCount =
+            users.where((e) => !e.isActive).length;
+
         isLoadingStats = false;
       });
     } else {
-      setState(() => isLoadingStats = false);
+      setState(() {
+        isLoadingStats = false;
+      });
     }
   }
 
   Future<void> _handleLogout() async {
     await AuthService.logout();
+
     if (!mounted) return;
 
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (_) => const LoginScreen(role: "admin")),
+      MaterialPageRoute(
+        builder: (_) => const LoginScreen(role: "admin"),
+      ),
       (route) => false,
     );
   }
@@ -78,24 +96,20 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   void _openManageUsers() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => const ManageUsersScreen()),
-    ).then((_) => _loadStats()); // wapas aane par stats refresh
+      MaterialPageRoute(
+        builder: (_) => const ManageUsersScreen(),
+      ),
+    ).then((_) => _loadStats());
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
+
       appBar: AppBar(
         title: const Text("Admin Dashboard"),
         centerTitle: true,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_none),
-            onPressed: () {},
-          ),
-        ],
       ),
 
       drawer: Drawer(
@@ -103,19 +117,30 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
           padding: EdgeInsets.zero,
           children: [
             UserAccountsDrawerHeader(
-              decoration: const BoxDecoration(color: Colors.deepPurple),
-              accountName: Text(isLoadingProfile ? "Loading..." : adminName),
-              accountEmail: Text(isLoadingProfile ? "" : adminEmail),
+              decoration:
+                  const BoxDecoration(color: Colors.deepPurple),
+              accountName:
+                  Text(isLoadingProfile ? "Loading..." : adminName),
+              accountEmail:
+                  Text(isLoadingProfile ? "" : adminEmail),
               currentAccountPicture: const CircleAvatar(
                 backgroundColor: Colors.white,
-                child: Icon(Icons.admin_panel_settings, size: 40, color: Colors.deepPurple),
+                child: Icon(
+                  Icons.admin_panel_settings,
+                  color: Colors.deepPurple,
+                  size: 40,
+                ),
               ),
             ),
+
             ListTile(
               leading: const Icon(Icons.dashboard),
               title: const Text("Dashboard"),
-              onTap: () => Navigator.pop(context),
+              onTap: () {
+                Navigator.pop(context);
+              },
             ),
+
             ListTile(
               leading: const Icon(Icons.people),
               title: const Text("Manage Users"),
@@ -124,21 +149,94 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                 _openManageUsers();
               },
             ),
+
             ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text("Settings"),
-              onTap: () {},
+              leading: const Icon(Icons.category),
+              title: const Text("Manage Categories"),
+              onTap: () {
+                Navigator.pop(context);
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const AdminCategoryScreen(),
+                  ),
+                );
+              },
             ),
-            const Divider(),
             ListTile(
-              leading: const Icon(Icons.logout, color: Colors.red),
-              title: const Text("Logout", style: TextStyle(color: Colors.red)),
+  leading: const Icon(Icons.miscellaneous_services),
+  title: const Text("Manage Services"),
+  onTap: () {
+    Navigator.pop(context);
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const ManageServicesScreen(),
+      ),
+    );
+  },
+),
+
+            ListTile(
+              leading: const Icon(Icons.assignment),
+              title: const Text("Provider Applications"),
+              onTap: () {
+                Navigator.pop(context);
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        const ProviderApplicationsScreen(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+  leading: const Icon(Icons.badge),
+  title: const Text("Provider Profiles"),
+  onTap: () {
+    Navigator.pop(context);
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const AdminProviderProfilesScreen(),
+      ),
+    );
+  },
+),
+ListTile(
+  leading: const Icon(Icons.receipt_long),
+  title: const Text("All Orders"),
+  onTap: () {
+    Navigator.pop(context);
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const AdminOrdersScreen(),
+      ),
+    );
+  },
+),
+
+            const Divider(),
+
+            ListTile(
+              leading:
+                  const Icon(Icons.logout, color: Colors.red),
+              title: const Text(
+                "Logout",
+                style: TextStyle(color: Colors.red),
+              ),
               onTap: _handleLogout,
             ),
           ],
         ),
       ),
-
       body: RefreshIndicator(
         onRefresh: () async {
           await _loadProfile();
@@ -150,15 +248,16 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // WELCOME CARD
+              // Welcome Card
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Colors.deepPurple, Colors.purpleAccent],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.deepPurple,
+                      Colors.purpleAccent,
+                    ],
                   ),
                   borderRadius: BorderRadius.circular(18),
                 ),
@@ -167,25 +266,38 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                     const CircleAvatar(
                       radius: 30,
                       backgroundColor: Colors.white,
-                      child: Icon(Icons.admin_panel_settings, size: 32, color: Colors.deepPurple),
+                      child: Icon(
+                        Icons.admin_panel_settings,
+                        color: Colors.deepPurple,
+                        size: 32,
+                      ),
                     ),
+
                     const SizedBox(width: 16),
+
                     Expanded(
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment:
+                            CrossAxisAlignment.start,
                         children: [
                           Text(
-                            isLoadingProfile ? "Loading..." : "Welcome, $adminName 👋",
+                            isLoadingProfile
+                                ? "Loading..."
+                                : "Welcome, $adminName 👋",
                             style: const TextStyle(
                               color: Colors.white,
-                              fontSize: 18,
                               fontWeight: FontWeight.bold,
+                              fontSize: 18,
                             ),
                           ),
-                          const SizedBox(height: 4),
+
+                          const SizedBox(height: 5),
+
                           Text(
-                            isLoadingProfile ? "" : adminEmail,
-                            style: const TextStyle(color: Colors.white70, fontSize: 13),
+                            adminEmail,
+                            style: const TextStyle(
+                              color: Colors.white70,
+                            ),
                           ),
                         ],
                       ),
@@ -194,48 +306,53 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                 ),
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 25),
 
               const Text(
                 "Overview",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
 
-              const SizedBox(height: 12),
+              const SizedBox(height: 15),
 
               isLoadingStats
                   ? const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(20),
-                        child: CircularProgressIndicator(),
-                      ),
+                      child:
+                          CircularProgressIndicator(),
                     )
                   : GridView.count(
                       shrinkWrap: true,
+                      physics:
+                          const NeverScrollableScrollPhysics(),
                       crossAxisCount: 2,
                       crossAxisSpacing: 12,
                       mainAxisSpacing: 12,
-                      childAspectRatio: 1.15,
-                      physics: const NeverScrollableScrollPhysics(),
+                      childAspectRatio: 0.95,
                       children: [
                         AdminStatCard(
                           icon: Icons.people,
-                          title: "Total Users",
+                          title: "Users",
                           value: "$totalUsers",
                           color: Colors.blue,
                         ),
-                        AdminStatCard(
-                          icon: Icons.home_repair_service,
-                          title: "Providers",
-                          value: "$totalProviders",
-                          color: Colors.green,
-                        ),
+
                         AdminStatCard(
                           icon: Icons.person,
                           title: "Customers",
                           value: "$totalCustomers",
                           color: Colors.orange,
                         ),
+
+                        AdminStatCard(
+                          icon: Icons.home_repair_service,
+                          title: "Providers",
+                          value: "$totalProviders",
+                          color: Colors.green,
+                        ),
+
                         AdminStatCard(
                           icon: Icons.block,
                           title: "Inactive",
@@ -245,49 +362,88 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       ],
                     ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 25),
 
               const Text(
                 "Quick Actions",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
 
-              const SizedBox(height: 12),
+              const SizedBox(height: 15),
 
               Card(
-                elevation: 1,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                shape: RoundedRectangleBorder(
+                  borderRadius:
+                      BorderRadius.circular(15),
+                ),
                 child: Column(
                   children: [
                     ListTile(
-                      leading: const CircleAvatar(
-                        backgroundColor: Color(0xFFE3F2FD),
-                        child: Icon(Icons.people, color: Colors.blue),
-                      ),
-                      title: const Text("Manage Users"),
-                      subtitle: const Text("View, change role, activate/deactivate"),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                      leading:
+                          const Icon(Icons.people),
+                      title:
+                          const Text("Manage Users"),
+                      trailing:
+                          const Icon(Icons.arrow_forward_ios),
                       onTap: _openManageUsers,
                     ),
+
+                    const Divider(height: 1),
+
                     ListTile(
-  leading: const Icon(Icons.category),
-  title: const Text("Manage Categories"),
+                      leading:
+                          const Icon(Icons.category),
+                      title: const Text(
+                          "Manage Categories"),
+                      trailing:
+                          const Icon(Icons.arrow_forward_ios),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                const AdminCategoryScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                    const Divider(height: 1),
+
+ListTile(
+  leading: const Icon(Icons.miscellaneous_services),
+  title: const Text("Manage Services"),
+  trailing: const Icon(Icons.arrow_forward_ios),
   onTap: () {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => const AdminCategoryScreen()),
+      MaterialPageRoute(
+        builder: (_) => const ManageServicesScreen(),
+      ),
     );
   },
 ),
+
                     const Divider(height: 1),
+
                     ListTile(
-                      leading: const CircleAvatar(
-                        backgroundColor: Color(0xFFE8F5E9),
-                        child: Icon(Icons.bar_chart, color: Colors.green),
-                      ),
-                      title: const Text("View Platform Reports"),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                      onTap: () {},
+                      leading:
+                          const Icon(Icons.assignment),
+                      title: const Text(
+                          "Provider Applications"),
+                      trailing:
+                          const Icon(Icons.arrow_forward_ios),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                const ProviderApplicationsScreen(),
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -319,39 +475,51 @@ class AdminStatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.grey.withOpacity(0.15),
             blurRadius: 8,
-            offset: const Offset(0, 3),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.12),
-              borderRadius: BorderRadius.circular(10),
+          CircleAvatar(
+            radius: 20,
+            backgroundColor: color.withOpacity(0.15),
+            child: Icon(
+              icon,
+              color: color,
+              size: 22,
             ),
-            child: Icon(icon, color: color, size: 20),
           ),
+
           const SizedBox(height: 8),
+
           Text(
             value,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
           ),
+
+          const SizedBox(height: 4),
+
           Text(
             title,
-            style: const TextStyle(color: Colors.grey, fontSize: 11),
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Colors.grey,
+              fontSize: 13,
+            ),
           ),
         ],
       ),

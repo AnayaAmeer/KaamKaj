@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/features/auth/screens/login_screen.dart';
 import 'package:my_app/core/services/auth_service.dart';
+import 'package:my_app/features/provider/provider_profile_screen.dart';
+import 'package:my_app/features/provider/provider_orders_screen.dart';
 
 class ProviderHomeScreen extends StatefulWidget {
   const ProviderHomeScreen({super.key});
@@ -88,26 +90,52 @@ class _ProviderHomeScreenState extends State<ProviderHomeScreen> {
                 child: Icon(Icons.home_repair_service, size: 40, color: Colors.teal),
               ),
             ),
-            ListTile(
-              leading: const Icon(Icons.home),
-              title: const Text("Home"),
-              onTap: () => Navigator.pop(context),
-            ),
-            ListTile(
-              leading: const Icon(Icons.assignment),
-              title: const Text("My Jobs"),
-              onTap: () {},
-            ),
-            ListTile(
-              leading: const Icon(Icons.attach_money),
-              title: const Text("Earnings"),
-              onTap: () {},
-            ),
-            ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text("Settings"),
-              onTap: () {},
-            ),
+           ListTile(
+  leading: const Icon(Icons.home),
+  title: const Text("Home"),
+  onTap: () => Navigator.pop(context),
+),
+
+ListTile(
+  leading: const Icon(Icons.person),
+  title: const Text("Profile Settings"),
+  onTap: () {
+    Navigator.pop(context);
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const ProviderProfileScreen(),
+      ),
+    );
+  },
+),
+
+ListTile(
+  leading: const Icon(Icons.assignment),
+  title: const Text("My Jobs"),
+  onTap: () {
+    Navigator.pop(context); // drawer close karo pehle
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const ProviderOrdersScreen(),
+      ),
+    );
+  },
+),
+
+ListTile(
+  leading: const Icon(Icons.attach_money),
+  title: const Text("Earnings"),
+  onTap: () {},
+),
+
+ListTile(
+  leading: const Icon(Icons.settings),
+  title: const Text("Settings"),
+  onTap: () {},
+),
             const Divider(),
             ListTile(
               leading: const Icon(Icons.logout, color: Colors.red),

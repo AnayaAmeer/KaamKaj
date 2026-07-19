@@ -17,13 +17,22 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+
 // Routes
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/admin", require("./routes/adminRoutes"));
 app.use("/api/provider", require("./routes/providerRoutes"));
-app.use("/api/categories", require("./routes/categoryRoutes"));
-
-// Health check
+app.use("/api/categories", require("./routes/categoryRoutes"));// Health check
+app.use("/api/services", require("./routes/serviceRoutes"));
+app.use(
+"/api/provider-applications",
+require("./routes/providerApplicationRoutes")
+);
+app.use(
+"/api/provider-profile",
+require("./routes/providerProfileRoutes")
+);
+app.use("/api/orders", require("./routes/orderRoutes"));
 app.get("/", (req, res) => {
   res.json({ success: true, message: "Auth API is running" });
 });

@@ -43,3 +43,8 @@ kotlin {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    // Stripe SDK ko AppCompat theme ke sath kaam karne ke liye zaroori hai
+    implementation("androidx.appcompat:appcompat:1.7.0")
+}

@@ -12,11 +12,10 @@ const { upload } = require("../config/cloudinary");
 const { protect, isAdmin } = require("../middleware/authMiddleware");
 
 // ---------- PUBLIC ----------
-router.get("/", getCategories);
+router.get("/", getCategories); // Public
 
-// ---------- ADMIN ----------
-router.post("/admin", protect, isAdmin, upload.single("image"), addCategory);
-router.put("/admin/:id", protect, isAdmin, upload.single("image"), updateCategory);
-router.delete("/admin/:id", protect, isAdmin, deleteCategory);
+router.post("/", protect, isAdmin, upload.single("image"), addCategory);
+router.put("/:id", protect, isAdmin, upload.single("image"), updateCategory);
+router.delete("/:id", protect, isAdmin, deleteCategory);
 
 module.exports = router;
