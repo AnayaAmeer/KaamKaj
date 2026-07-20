@@ -11,7 +11,6 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-
   @override
   void initState() {
     super.initState();
@@ -35,27 +34,34 @@ class _SplashScreenState extends State<SplashScreen> {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-
-            Icon(
-              Icons.home_repair_service,
-              size: 90,
-              color: Colors.blue,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.amber, // yellow shade
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.home_repair_service,
+                size: 70,
+                color: Colors.white,
+              ),
             ),
 
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
 
-            Text(
+            const Text(
               "Kaam Kaj",
               style: TextStyle(
                 fontSize: 36,
                 fontWeight: FontWeight.bold,
+                color: Colors.black87,
               ),
             ),
 
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
 
-            Text(
+            const Text(
               "Find Trusted Service Experts",
               style: TextStyle(
                 fontSize: 16,
@@ -63,9 +69,11 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
             ),
 
-            SizedBox(height: 50),
+            const SizedBox(height: 50),
 
-            CircularProgressIndicator(),
+            const CircularProgressIndicator(
+              color: Colors.amber,
+            ),
           ],
         ),
       ),

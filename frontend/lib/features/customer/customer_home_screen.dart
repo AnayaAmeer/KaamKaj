@@ -51,7 +51,9 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(result.message),
-          backgroundColor: Colors.red,
+          backgroundColor: Colors.red.shade400,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         ),
       );
 
@@ -89,6 +91,9 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(result.message),
+          backgroundColor: Colors.red.shade400,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         ),
       );
     }
@@ -126,87 +131,105 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Customer Dashboard"),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications),
-            onPressed: () {},
-          ),
-        ],
-      ),
-
+      backgroundColor: const Color(0xFFFFFDF5), // halka cream-white
       drawer: Drawer(
+        backgroundColor: const Color(0xFFFFFDF5),
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            UserAccountsDrawerHeader(
-              accountName:
-                  Text(isLoadingProfile ? "Loading..." : userName),
-              accountEmail:
-                  Text(isLoadingProfile ? "" : userEmail),
-              currentAccountPicture: const CircleAvatar(
-                child: Icon(Icons.person, size: 40),
+            DrawerHeader(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.amber.shade400, Colors.amber.shade600],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(3),
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                    child: CircleAvatar(
+                      radius: 28,
+                      backgroundColor: Colors.amber.shade50,
+                      child: Icon(Icons.person_rounded,
+                          size: 30, color: Colors.amber.shade700),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    isLoadingProfile ? "Loading..." : userName,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    isLoadingProfile ? "" : userEmail,
+                    style: TextStyle(color: Colors.amber.shade50, fontSize: 13),
+                  ),
+                ],
               ),
             ),
 
-            ListTile(
-              leading: const Icon(Icons.home),
-              title: const Text("Home"),
-              onTap: () {
-                Navigator.pop(context);
-              },
+            const SizedBox(height: 8),
+
+            _drawerTile(
+              icon: Icons.home_rounded,
+              title: "Home",
+              onTap: () => Navigator.pop(context),
             ),
 
-            ListTile(
-              leading: const Icon(Icons.history),
-              title: const Text("My Orders"),
+            _drawerTile(
+              icon: Icons.history_rounded,
+              title: "My Orders",
               onTap: () {
                 Navigator.pop(context);
-
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (_) => const MyOrdersScreen(),
-                  ),
+                  MaterialPageRoute(builder: (_) => const MyOrdersScreen()),
                 );
               },
             ),
 
-            ListTile(
-              leading: const Icon(Icons.favorite),
-              title: const Text("Saved Services"),
-              onTap: () {},
-            ),
-           ListTile(
-  leading: const Icon(Icons.work),
-  title: const Text(
-    "Apply for Service Provider",
-  ),
-
-  onTap: () {
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const ApplyProviderScreen(),
-      ),
-    );
-
-  },
-),
-
-            ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text("Settings"),
+            _drawerTile(
+              icon: Icons.favorite_rounded,
+              title: "Saved Services",
               onTap: () {},
             ),
 
-            ListTile(
-              leading: const Icon(Icons.logout),
-              title: const Text("Logout"),
+            _drawerTile(
+              icon: Icons.work_rounded,
+              title: "Apply for Service Provider",
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ApplyProviderScreen()),
+                );
+              },
+            ),
+
+            _drawerTile(
+              icon: Icons.settings_rounded,
+              title: "Settings",
+              onTap: () {},
+            ),
+
+            const Divider(height: 24, indent: 20, endIndent: 20),
+
+            _drawerTile(
+              icon: Icons.logout_rounded,
+              title: "Logout",
               onTap: _handleLogout,
+              color: Colors.red.shade400,
             ),
           ],
         ),
@@ -214,92 +237,201 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
 
       body: isLoadingProfile
           ? const Center(
-              child: CircularProgressIndicator(),
+              child: CircularProgressIndicator(color: Colors.amber),
             )
           : RefreshIndicator(
+              color: Colors.amber,
               onRefresh: _loadCategories,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Hello $userName 👋",
-                      style: const TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
+              child: CustomScrollView(
+                slivers: [
+                  // ================= HEADER BANNER =================
+                  SliverToBoxAdapter(
+                    child: Container(
+                      padding: const EdgeInsets.fromLTRB(20, 14, 20, 26),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Colors.amber.shade400, Colors.amber.shade600],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: const BorderRadius.only(
+                          bottomLeft: Radius.circular(28),
+                          bottomRight: Radius.circular(28),
+                        ),
                       ),
-                    ),
+                      child: SafeArea(
+                        bottom: false,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Builder(
+                                  builder: (context) => InkWell(
+                                    borderRadius: BorderRadius.circular(30),
+                                    onTap: () => Scaffold.of(context).openDrawer(),
+                                    child: Container(
+                                      padding: const EdgeInsets.all(3),
+                                      decoration: const BoxDecoration(
+                                        color: Colors.white,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: CircleAvatar(
+                                        radius: 20,
+                                        backgroundColor: Colors.amber.shade50,
+                                        child: Icon(Icons.person_rounded,
+                                            color: Colors.amber.shade700, size: 22),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.25),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: IconButton(
+                                    icon: const Icon(Icons.notifications_none_rounded,
+                                        color: Colors.white),
+                                    onPressed: () {},
+                                  ),
+                                ),
+                              ],
+                            ),
 
-                    const Text(
-                      "What service do you need today?",
-                      style: TextStyle(
-                        color: Colors.grey,
-                      ),
-                    ),
+                            const SizedBox(height: 20),
 
-                    const SizedBox(height: 20),
+                            Text(
+                              "Hello $userName 👋",
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
 
-                    TextField(
-                      decoration: InputDecoration(
-                        hintText: "Search services...",
-                        prefixIcon:
-                            const Icon(Icons.search),
-                        border: OutlineInputBorder(
-                          borderRadius:
-                              BorderRadius.circular(12),
+                            const SizedBox(height: 4),
+
+                            Text(
+                              "What service do you need today?",
+                              style: TextStyle(
+                                color: Colors.amber.shade50,
+                                fontSize: 14.5,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
+                  ),
 
-                    const SizedBox(height: 20),
-
-                    const Text(
-                      "Categories",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                  // ================= CATEGORIES HEADING =================
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 24, 20, 14),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            "Categories",
+                            style: TextStyle(
+                              fontSize: 19,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          if (categories.isNotEmpty)
+                            Text(
+                              "${categories.length} available",
+                              style: TextStyle(
+                                fontSize: 12.5,
+                                color: Colors.grey.shade500,
+                              ),
+                            ),
+                        ],
                       ),
                     ),
+                  ),
 
-                    const SizedBox(height: 10),
-                                        Expanded(
-                      child: isLoadingCategories
-                          ? const Center(
-                              child: CircularProgressIndicator(),
-                            )
-                          : categories.isEmpty
-                              ? const Center(
-                                  child: Text(
-                                    "No Categories Found",
-                                    style: TextStyle(fontSize: 16),
-                                  ),
-                                )
-                              : GridView.builder(
-                                  itemCount: categories.length,
-                                  gridDelegate:
-                                      const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 2,
-                                    crossAxisSpacing: 12,
-                                    mainAxisSpacing: 12,
-                                    childAspectRatio: 0.9,
-                                  ),
-                                  itemBuilder: (context, index) {
-                                    final category = categories[index];
-
-                                    return CategoryCard(
-                                      category: category,
-                                      onTap: () =>
-                                          _openCategory(category),
-                                    );
-                                  },
-                                ),
+                  // ================= CATEGORIES GRID =================
+                  if (isLoadingCategories)
+                    const SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: Center(
+                        child: CircularProgressIndicator(color: Colors.amber),
+                      ),
+                    )
+                  else if (categories.isEmpty)
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                color: Colors.amber.shade50,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(Icons.category_outlined,
+                                  size: 40, color: Colors.amber.shade300),
+                            ),
+                            const SizedBox(height: 14),
+                            const Text(
+                              "No Categories Found",
+                              style: TextStyle(fontSize: 15, color: Colors.grey),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  else
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+                      sliver: SliverGrid(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 14,
+                          mainAxisSpacing: 14,
+                          childAspectRatio: 0.85,
+                        ),
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            final category = categories[index];
+                            return CategoryCard(
+                              category: category,
+                              onTap: () => _openCategory(category),
+                            );
+                          },
+                          childCount: categories.length,
+                        ),
+                      ),
                     ),
-                  ],
-                ),
+                ],
               ),
             ),
+    );
+  }
+
+  Widget _drawerTile({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+    Color? color,
+  }) {
+    return ListTile(
+      leading: Icon(icon, color: color ?? Colors.amber.shade700),
+      title: Text(
+        title,
+        style: TextStyle(
+          fontWeight: FontWeight.w500,
+          color: color ?? Colors.black87,
+        ),
+      ),
+      onTap: onTap,
     );
   }
 }
@@ -317,70 +449,88 @@ class CategoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(18),
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          boxShadow: const [
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [
             BoxShadow(
-              blurRadius: 6,
-              color: Colors.black12,
-              offset: Offset(0, 2),
+              blurRadius: 12,
+              color: Colors.black.withOpacity(0.05),
+              offset: const Offset(0, 5),
             ),
           ],
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Expanded(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: Image.network(
-                    category.imageUrl,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: Colors.grey.shade200,
-                        child: const Icon(
-                          Icons.image_not_supported,
-                          size: 40,
-                          color: Colors.grey,
-                        ),
-                      );
-                    },
-                    loadingBuilder:
-                        (context, child, loadingProgress) {
-                      if (loadingProgress == null) {
-                        return child;
-                      }
-
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    },
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Container(
+                    color: Colors.amber.shade50,
+                    child: Image.network(
+                      category.imageUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Icon(
+                          Icons.image_not_supported_rounded,
+                          size: 34,
+                          color: Colors.amber.shade200,
+                        );
+                      },
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return const Center(
+                          child: CircularProgressIndicator(
+                            color: Colors.amber,
+                            strokeWidth: 2,
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                ),
+                  // subtle bottom gradient for polish
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: Container(
+                      height: 36,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.black.withOpacity(0),
+                            Colors.black.withOpacity(0.08),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-
-              const SizedBox(height: 10),
-
-              Text(
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              child: Text(
                 category.name,
-                textAlign: TextAlign.center,
-                maxLines: 2,
+                textAlign: TextAlign.start,
+                maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 15,
+                  fontSize: 14.5,
+                  color: Colors.black87,
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

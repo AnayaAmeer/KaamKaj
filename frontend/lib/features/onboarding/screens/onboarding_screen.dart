@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../role_selection/screens/role_selection_screen.dart';
+
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
 
@@ -46,7 +47,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               alignment: Alignment.centerRight,
               child: TextButton(
                 onPressed: () {},
-                child: const Text("Skip"),
+                child: const Text(
+                  "Skip",
+                  style: TextStyle(color: Colors.amber),
+                ),
               ),
             ),
 
@@ -66,10 +70,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
 
-                        Icon(
-                          pages[index]["icon"],
-                          size: 120,
-                          color: Colors.blue,
+                        Container(
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: Colors.amber.shade50,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            pages[index]["icon"],
+                            size: 90,
+                            color: Colors.amber,
+                          ),
                         ),
 
                         const SizedBox(height: 40),
@@ -80,6 +91,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           style: const TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
+                            color: Colors.black87,
                           ),
                         ),
 
@@ -111,7 +123,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   width: currentPage == index ? 28 : 10,
                   decoration: BoxDecoration(
                     color: currentPage == index
-                        ? Colors.blue
+                        ? Colors.amber
                         : Colors.grey.shade300,
                     borderRadius: BorderRadius.circular(20),
                   ),
@@ -121,37 +133,48 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
             const SizedBox(height: 30),
 
-           Padding(
-  padding: const EdgeInsets.symmetric(horizontal: 25),
-  child: SizedBox(
-    width: double.infinity,
-    height: 55,
-    child: ElevatedButton(
-      onPressed: () {
-        if (currentPage < pages.length - 1) {
-          _controller.nextPage(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-          );
-        } else {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const RoleSelectionScreen(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 25),
+              child: SizedBox(
+                width: double.infinity,
+                height: 55,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.amber,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onPressed: () {
+                    if (currentPage < pages.length - 1) {
+                      _controller.nextPage(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      );
+                    } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const RoleSelectionScreen(),
+                        ),
+                      );
+                    }
+                  },
+                  child: Text(
+                    currentPage == pages.length - 1
+                        ? "Get Started"
+                        : "Next",
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
             ),
-          );
-        }
-      },
-      child: Text(
-        currentPage == pages.length - 1
-            ? "Get Started"
-            : "Next",
-      ),
-    ),
-  ),
-),
 
-const SizedBox(height: 30),
+            const SizedBox(height: 30),
           ],
         ),
       ),

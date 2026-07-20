@@ -21,6 +21,12 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
   bool isPasswordVisible = false;
   bool isLoading = false;
 
+  String get screenSubtitle {
+    return widget.role == "provider"
+        ? "Register to start offering your services"
+        : "Register to book trusted services";
+  }
+
   Future<void> register() async {
     final name = nameController.text.trim();
     final email = emailController.text.trim();
@@ -29,9 +35,11 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
 
     if (name.isEmpty || email.isEmpty || phone.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please fill all fields"),
-          backgroundColor: Colors.red,
+        SnackBar(
+          content: const Text("Please fill all fields"),
+          backgroundColor: Colors.red.shade400,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         ),
       );
       return;
@@ -55,15 +63,22 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
 
     if (!result.success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result.message), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text(result.message),
+          backgroundColor: Colors.red.shade400,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
       );
       return;
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Account created successfully!"),
-        backgroundColor: Colors.green,
+      SnackBar(
+        content: const Text("Account created successfully!"),
+        backgroundColor: Colors.green.shade600,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
 
@@ -92,26 +107,92 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
     super.dispose();
   }
 
+  InputDecoration _inputDecoration({
+    required String label,
+    required IconData icon,
+    Widget? suffixIcon,
+  }) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: TextStyle(color: Colors.grey.shade600),
+      prefixIcon: Icon(icon, color: Colors.amber.shade700),
+      suffixIcon: suffixIcon,
+      filled: true,
+      fillColor: Colors.amber.shade50.withOpacity(0.5),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide(color: Colors.grey.shade200),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: Colors.amber, width: 1.8),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFFFFDF5), // halka cream-white
       appBar: AppBar(
-        title: const Text("Create Account"),
-        centerTitle: true,
+        title: const Text(""),
+        elevation: 0,
+        backgroundColor: const Color(0xFFFFFDF5),
+        iconTheme: const IconThemeData(color: Colors.black87),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             children: [
+              const SizedBox(height: 4),
+
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.amber.shade50,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.person_add_alt_1_rounded,
+                  size: 48,
+                  color: Colors.amber.shade700,
+                ),
+              ),
+
               const SizedBox(height: 20),
+
+              const Text(
+                "Create Account",
+                style: TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+
+              const SizedBox(height: 6),
+
+              Text(
+                screenSubtitle,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey,
+                ),
+              ),
+
+              const SizedBox(height: 28),
 
               TextField(
                 controller: nameController,
-                decoration: InputDecoration(
-                  labelText: "Full Name",
-                  prefixIcon: const Icon(Icons.person),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                decoration: _inputDecoration(
+                  label: "Full Name",
+                  icon: Icons.person_rounded,
                 ),
               ),
 
@@ -120,10 +201,9 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
               TextField(
                 controller: emailController,
                 keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(
-                  labelText: "Email",
-                  prefixIcon: const Icon(Icons.email),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                decoration: _inputDecoration(
+                  label: "Email",
+                  icon: Icons.email_rounded,
                 ),
               ),
 
@@ -132,10 +212,9 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
               TextField(
                 controller: phoneController,
                 keyboardType: TextInputType.phone,
-                decoration: InputDecoration(
-                  labelText: "Phone Number",
-                  prefixIcon: const Icon(Icons.phone),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                decoration: _inputDecoration(
+                  label: "Phone Number",
+                  icon: Icons.phone_rounded,
                 ),
               ),
 
@@ -144,35 +223,81 @@ class _CustomerRegisterScreenState extends State<CustomerRegisterScreen> {
               TextField(
                 controller: passwordController,
                 obscureText: !isPasswordVisible,
-                decoration: InputDecoration(
-                  labelText: "Password",
-                  prefixIcon: const Icon(Icons.lock),
+                decoration: _inputDecoration(
+                  label: "Password",
+                  icon: Icons.lock_rounded,
                   suffixIcon: IconButton(
-                    icon: Icon(isPasswordVisible ? Icons.visibility : Icons.visibility_off),
+                    icon: Icon(
+                      isPasswordVisible
+                          ? Icons.visibility_rounded
+                          : Icons.visibility_off_rounded,
+                      color: Colors.grey.shade500,
+                    ),
                     onPressed: () {
                       setState(() => isPasswordVisible = !isPasswordVisible);
                     },
                   ),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 ),
               ),
 
-              const SizedBox(height: 25),
+              const SizedBox(height: 30),
 
               SizedBox(
                 width: double.infinity,
-                height: 55,
+                height: 56,
                 child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.amber,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
                   onPressed: isLoading ? null : register,
                   child: isLoading
                       ? const SizedBox(
                           height: 22,
                           width: 22,
-                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
                         )
-                      : const Text("Register", style: TextStyle(fontSize: 18)),
+                      : const Text(
+                          "Register",
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                 ),
               ),
+
+              const SizedBox(height: 24),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    "Already have an account?",
+                    style: TextStyle(color: Colors.grey, fontSize: 14),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text(
+                      "Login",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14,
+                        color: Colors.amber.shade700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 20),
             ],
           ),
         ),
