@@ -36,6 +36,20 @@ class _AddEditCategoryScreenState extends State<AddEditCategoryScreen> {
     super.dispose();
   }
 
+  void _showSnack(String message, {bool isError = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor:
+            isError ? Colors.red.shade400 : Colors.green.shade500,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
+  }
+
   Future<void> _pickImage() async {
     final picked = await ImagePicker().pickImage(
       source: ImageSource.gallery,
@@ -50,9 +64,7 @@ class _AddEditCategoryScreenState extends State<AddEditCategoryScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     if (!isEditMode && _pickedImage == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Image select karein")),
-      );
+      _showSnack("Image select karein", isError: true);
       return;
     }
 
@@ -74,79 +86,189 @@ class _AddEditCategoryScreenState extends State<AddEditCategoryScreen> {
     setState(() => _isSaving = false);
 
     if (result.success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(isEditMode ? "Category update ho gayi" : "Category add ho gayi")),
+      _showSnack(
+        isEditMode ? "Category update ho gayi" : "Category add ho gayi",
       );
       Navigator.pop(context, true);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result.message)),
-      );
+      _showSnack(result.message, isError: true);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFFFFDF5),
       appBar: AppBar(
-        title: Text(isEditMode ? "Edit Category" : "Add Category"),
+        elevation: 0,
         centerTitle: true,
+        backgroundColor: const Color(0xFFFFFDF5),
+        foregroundColor: Colors.black87,
+        title: Text(
+          isEditMode ? "Edit Category" : "Add Category",
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
+        ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Form(
           key: _formKey,
           child: Column(
             children: [
+
+              // ===== Image Picker =====
               GestureDetector(
                 onTap: _pickImage,
-                child: Container(
-                  height: 160,
-                  width: 160,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.grey.shade400),
-                  ),
-                  child: _buildImagePreview(),
+                child: Stack(
+                  children: [
+                    Container(
+                      height: 170,
+                      width: 170,
+                      decoration: BoxDecoration(
+                        color: Colors.amber.shade50,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.amber.shade200),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(.10),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: _buildImagePreview(),
+                    ),
+                    Positioned(
+                      bottom: 6,
+                      right: 6,
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                        child: CircleAvatar(
+                          radius: 17,
+                          backgroundColor: Colors.amber,
+                          child: const Icon(
+                            Icons.camera_alt_rounded,
+                            size: 17,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 8),
+
+              const SizedBox(height: 10),
+
               TextButton.icon(
                 onPressed: _pickImage,
-                icon: const Icon(Icons.image),
-                label: Text(_pickedImage != null || isEditMode ? "Image Change Karein" : "Image Select Karein"),
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: "Category Name",
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.category),
+                icon: Icon(Icons.image_rounded, color: Colors.amber.shade700),
+                label: Text(
+                  _pickedImage != null || isEditMode
+                      ? "Image Change Karein"
+                      : "Image Select Karein",
+                  style: TextStyle(
+                    color: Colors.amber.shade700,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Category name required hai";
-                  }
-                  return null;
-                },
               ),
-              const SizedBox(height: 24),
+
+              const SizedBox(height: 20),
+
+              // ===== Form Card =====
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(.08),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: TextFormField(
+                  controller: _nameController,
+                  decoration: InputDecoration(
+                    labelText: "Category Name",
+                    labelStyle: TextStyle(color: Colors.grey.shade600),
+                    prefixIcon:
+                        Icon(Icons.category_rounded, color: Colors.amber.shade700),
+                    filled: true,
+                    fillColor: Colors.amber.shade50.withOpacity(0.5),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: BorderSide.none,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: BorderSide(color: Colors.grey.shade200),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: Colors.amber, width: 1.8),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: BorderSide(color: Colors.red.shade300),
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Category name required hai";
+                    }
+                    return null;
+                  },
+                ),
+              ),
+
+              const SizedBox(height: 28),
+
               SizedBox(
                 width: double.infinity,
-                height: 48,
+                height: 56,
                 child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.amber,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
                   onPressed: _isSaving ? null : _save,
                   child: _isSaving
                       ? const SizedBox(
                           height: 22,
                           width: 22,
-                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
                         )
-                      : Text(isEditMode ? "Update Category" : "Save Category"),
+                      : Text(
+                          isEditMode ? "Update Category" : "Save Category",
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                 ),
               ),
+
+              const SizedBox(height: 20),
+
             ],
           ),
         ),
@@ -157,16 +279,20 @@ class _AddEditCategoryScreenState extends State<AddEditCategoryScreen> {
   Widget _buildImagePreview() {
     if (_pickedImage != null) {
       return ClipRRect(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(20),
         child: Image.file(_pickedImage!, fit: BoxFit.cover),
       );
     }
     if (isEditMode) {
       return ClipRRect(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(20),
         child: Image.network(widget.category!.imageUrl, fit: BoxFit.cover),
       );
     }
-    return const Icon(Icons.add_a_photo, size: 40, color: Colors.grey);
+    return Icon(
+      Icons.add_a_photo_rounded,
+      size: 40,
+      color: Colors.amber.shade700,
+    );
   }
 }

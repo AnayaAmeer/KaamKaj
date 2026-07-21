@@ -105,36 +105,52 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
+      backgroundColor: const Color(0xFFFFFDF5),
 
       appBar: AppBar(
-        title: const Text("Admin Dashboard"),
+        elevation: 0,
         centerTitle: true,
+        backgroundColor: const Color(0xFFFFFDF5),
+        foregroundColor: Colors.black87,
+        title: const Text(
+          "Admin Dashboard",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
+        ),
       ),
 
       drawer: Drawer(
+        backgroundColor: const Color(0xFFFFFDF5),
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
             UserAccountsDrawerHeader(
-              decoration:
-                  const BoxDecoration(color: Colors.deepPurple),
-              accountName:
-                  Text(isLoadingProfile ? "Loading..." : adminName),
-              accountEmail:
-                  Text(isLoadingProfile ? "" : adminEmail),
-              currentAccountPicture: const CircleAvatar(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.amber.shade400, Colors.amber.shade700],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              accountName: Text(
+                isLoadingProfile ? "Loading..." : adminName,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              accountEmail: Text(isLoadingProfile ? "" : adminEmail),
+              currentAccountPicture: CircleAvatar(
                 backgroundColor: Colors.white,
                 child: Icon(
-                  Icons.admin_panel_settings,
-                  color: Colors.deepPurple,
+                  Icons.admin_panel_settings_rounded,
+                  color: Colors.amber.shade700,
                   size: 40,
                 ),
               ),
             ),
 
             ListTile(
-              leading: const Icon(Icons.dashboard),
+              leading: Icon(Icons.dashboard_rounded, color: Colors.amber.shade700),
               title: const Text("Dashboard"),
               onTap: () {
                 Navigator.pop(context);
@@ -142,7 +158,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
             ),
 
             ListTile(
-              leading: const Icon(Icons.people),
+              leading: Icon(Icons.people_rounded, color: Colors.amber.shade700),
               title: const Text("Manage Users"),
               onTap: () {
                 Navigator.pop(context);
@@ -151,7 +167,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
             ),
 
             ListTile(
-              leading: const Icon(Icons.category),
+              leading: Icon(Icons.category_rounded, color: Colors.amber.shade700),
               title: const Text("Manage Categories"),
               onTap: () {
                 Navigator.pop(context);
@@ -165,22 +181,23 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               },
             ),
             ListTile(
-  leading: const Icon(Icons.miscellaneous_services),
-  title: const Text("Manage Services"),
-  onTap: () {
-    Navigator.pop(context);
+              leading: Icon(Icons.miscellaneous_services_rounded,
+                  color: Colors.amber.shade700),
+              title: const Text("Manage Services"),
+              onTap: () {
+                Navigator.pop(context);
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const ManageServicesScreen(),
-      ),
-    );
-  },
-),
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const ManageServicesScreen(),
+                  ),
+                );
+              },
+            ),
 
             ListTile(
-              leading: const Icon(Icons.assignment),
+              leading: Icon(Icons.assignment_rounded, color: Colors.amber.shade700),
               title: const Text("Provider Applications"),
               onTap: () {
                 Navigator.pop(context);
@@ -195,42 +212,44 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               },
             ),
             ListTile(
-  leading: const Icon(Icons.badge),
-  title: const Text("Provider Profiles"),
-  onTap: () {
-    Navigator.pop(context);
+              leading: Icon(Icons.badge_rounded, color: Colors.amber.shade700),
+              title: const Text("Provider Profiles"),
+              onTap: () {
+                Navigator.pop(context);
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const AdminProviderProfilesScreen(),
-      ),
-    );
-  },
-),
-ListTile(
-  leading: const Icon(Icons.receipt_long),
-  title: const Text("All Orders"),
-  onTap: () {
-    Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const AdminProviderProfilesScreen(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.receipt_long_rounded, color: Colors.amber.shade700),
+              title: const Text("All Orders"),
+              onTap: () {
+                Navigator.pop(context);
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const AdminOrdersScreen(),
-      ),
-    );
-  },
-),
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const AdminOrdersScreen(),
+                  ),
+                );
+              },
+            ),
 
             const Divider(),
 
             ListTile(
-              leading:
-                  const Icon(Icons.logout, color: Colors.red),
+              leading: const Icon(Icons.logout_rounded, color: Colors.red),
               title: const Text(
                 "Logout",
-                style: TextStyle(color: Colors.red),
+                style: TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               onTap: _handleLogout,
             ),
@@ -238,6 +257,7 @@ ListTile(
         ),
       ),
       body: RefreshIndicator(
+        color: Colors.amber.shade700,
         onRefresh: () async {
           await _loadProfile();
           await _loadStats();
@@ -248,28 +268,44 @@ ListTile(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Welcome Card
+              // ===== Welcome Card =====
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
+                  gradient: LinearGradient(
                     colors: [
-                      Colors.deepPurple,
-                      Colors.purpleAccent,
+                      Colors.amber.shade400,
+                      Colors.amber.shade700,
                     ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-                  borderRadius: BorderRadius.circular(18),
+                  borderRadius: BorderRadius.circular(22),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.amber.withOpacity(.25),
+                      blurRadius: 16,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
                 ),
                 child: Row(
                   children: [
-                    const CircleAvatar(
-                      radius: 30,
-                      backgroundColor: Colors.white,
-                      child: Icon(
-                        Icons.admin_panel_settings,
-                        color: Colors.deepPurple,
-                        size: 32,
+                    Container(
+                      padding: const EdgeInsets.all(3),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                      child: CircleAvatar(
+                        radius: 30,
+                        backgroundColor: Colors.amber.shade50,
+                        child: Icon(
+                          Icons.admin_panel_settings_rounded,
+                          color: Colors.amber.shade700,
+                          size: 32,
+                        ),
                       ),
                     ),
 
@@ -296,7 +332,8 @@ ListTile(
                           Text(
                             adminEmail,
                             style: const TextStyle(
-                              color: Colors.white70,
+                              color: Colors.white,
+                              fontSize: 13,
                             ),
                           ),
                         ],
@@ -306,22 +343,24 @@ ListTile(
                 ),
               ),
 
-              const SizedBox(height: 25),
+              const SizedBox(height: 28),
 
               const Text(
                 "Overview",
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 19,
                   fontWeight: FontWeight.bold,
+                  color: Colors.black87,
                 ),
               ),
 
               const SizedBox(height: 15),
 
               isLoadingStats
-                  ? const Center(
-                      child:
-                          CircularProgressIndicator(),
+                  ? Center(
+                      child: CircularProgressIndicator(
+                        color: Colors.amber.shade700,
+                      ),
                     )
                   : GridView.count(
                       shrinkWrap: true,
@@ -333,73 +372,73 @@ ListTile(
                       childAspectRatio: 0.95,
                       children: [
                         AdminStatCard(
-                          icon: Icons.people,
+                          icon: Icons.people_rounded,
                           title: "Users",
                           value: "$totalUsers",
-                          color: Colors.blue,
+                          color: Colors.blue.shade600,
                         ),
 
                         AdminStatCard(
-                          icon: Icons.person,
+                          icon: Icons.person_rounded,
                           title: "Customers",
                           value: "$totalCustomers",
-                          color: Colors.orange,
+                          color: Colors.amber.shade700,
                         ),
 
                         AdminStatCard(
-                          icon: Icons.home_repair_service,
+                          icon: Icons.home_repair_service_rounded,
                           title: "Providers",
                           value: "$totalProviders",
-                          color: Colors.green,
+                          color: Colors.green.shade600,
                         ),
 
                         AdminStatCard(
-                          icon: Icons.block,
+                          icon: Icons.block_rounded,
                           title: "Inactive",
                           value: "$inactiveCount",
-                          color: Colors.red,
+                          color: Colors.red.shade400,
                         ),
                       ],
                     ),
 
-              const SizedBox(height: 25),
+              const SizedBox(height: 28),
 
               const Text(
                 "Quick Actions",
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 19,
                   fontWeight: FontWeight.bold,
+                  color: Colors.black87,
                 ),
               ),
 
               const SizedBox(height: 15),
 
-              Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(15),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(.08),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
                 child: Column(
                   children: [
-                    ListTile(
-                      leading:
-                          const Icon(Icons.people),
-                      title:
-                          const Text("Manage Users"),
-                      trailing:
-                          const Icon(Icons.arrow_forward_ios),
+                    _QuickActionTile(
+                      icon: Icons.people_rounded,
+                      title: "Manage Users",
                       onTap: _openManageUsers,
                     ),
 
-                    const Divider(height: 1),
+                    Divider(height: 1, color: Colors.grey.shade100),
 
-                    ListTile(
-                      leading:
-                          const Icon(Icons.category),
-                      title: const Text(
-                          "Manage Categories"),
-                      trailing:
-                          const Icon(Icons.arrow_forward_ios),
+                    _QuickActionTile(
+                      icon: Icons.category_rounded,
+                      title: "Manage Categories",
                       onTap: () {
                         Navigator.push(
                           context,
@@ -410,31 +449,27 @@ ListTile(
                         );
                       },
                     ),
-                    const Divider(height: 1),
 
-ListTile(
-  leading: const Icon(Icons.miscellaneous_services),
-  title: const Text("Manage Services"),
-  trailing: const Icon(Icons.arrow_forward_ios),
-  onTap: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const ManageServicesScreen(),
-      ),
-    );
-  },
-),
+                    Divider(height: 1, color: Colors.grey.shade100),
 
-                    const Divider(height: 1),
+                    _QuickActionTile(
+                      icon: Icons.miscellaneous_services_rounded,
+                      title: "Manage Services",
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const ManageServicesScreen(),
+                          ),
+                        );
+                      },
+                    ),
 
-                    ListTile(
-                      leading:
-                          const Icon(Icons.assignment),
-                      title: const Text(
-                          "Provider Applications"),
-                      trailing:
-                          const Icon(Icons.arrow_forward_ios),
+                    Divider(height: 1, color: Colors.grey.shade100),
+
+                    _QuickActionTile(
+                      icon: Icons.assignment_rounded,
+                      title: "Provider Applications",
                       onTap: () {
                         Navigator.push(
                           context,
@@ -475,14 +510,14 @@ class AdminStatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.15),
-            blurRadius: 8,
+            color: Colors.grey.withOpacity(0.10),
+            blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],
@@ -492,8 +527,8 @@ class AdminStatCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           CircleAvatar(
-            radius: 20,
-            backgroundColor: color.withOpacity(0.15),
+            radius: 22,
+            backgroundColor: color.withOpacity(0.12),
             child: Icon(
               icon,
               color: color,
@@ -501,13 +536,14 @@ class AdminStatCard extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
 
           Text(
             value,
             style: const TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
+              color: Colors.black87,
             ),
           ),
 
@@ -516,13 +552,53 @@ class AdminStatCard extends StatelessWidget {
           Text(
             title,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Colors.grey,
+            style: TextStyle(
+              color: Colors.grey.shade600,
               fontSize: 13,
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _QuickActionTile extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final VoidCallback onTap;
+
+  const _QuickActionTile({
+    required this.icon,
+    required this.title,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: Container(
+        padding: const EdgeInsets.all(9),
+        decoration: BoxDecoration(
+          color: Colors.amber.shade50,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Icon(icon, color: Colors.amber.shade700, size: 20),
+      ),
+      title: Text(
+        title,
+        style: const TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 14.5,
+          color: Colors.black87,
+        ),
+      ),
+      trailing: Icon(
+        Icons.arrow_forward_ios_rounded,
+        size: 15,
+        color: Colors.grey.shade400,
+      ),
+      onTap: onTap,
     );
   }
 }

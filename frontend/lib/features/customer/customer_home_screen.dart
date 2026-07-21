@@ -17,6 +17,7 @@ class CustomerHomeScreen extends StatefulWidget {
 class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
   String userName = "Loading...";
   String userEmail = "";
+  String userPhone = "";
 
   bool isLoadingProfile = true;
   bool isLoadingCategories = true;
@@ -41,6 +42,7 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
       setState(() {
         userName = result.data!["name"] ?? "User";
         userEmail = result.data!["email"] ?? "";
+        userPhone = result.data!["phone"] ?? result.data!["phoneNumber"] ?? "";
         isLoadingProfile = false;
       });
     } else {
@@ -122,6 +124,129 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
       context,
       MaterialPageRoute(
         builder: (_) => CategoryProvidersScreen(category: category),
+      ),
+    );
+  }
+
+  // ================= PROFILE INFO DIALOG =================
+
+  void _showProfileInfo() {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(22, 26, 22, 20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.amber.shade400, Colors.amber.shade600],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  shape: BoxShape.circle,
+                ),
+                child: CircleAvatar(
+                  radius: 34,
+                  backgroundColor: Colors.amber.shade50,
+                  child: Icon(Icons.person_rounded,
+                      size: 38, color: Colors.amber.shade700),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                userName.isEmpty ? "User" : userName,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 18),
+              _profileInfoTile(
+                icon: Icons.email_rounded,
+                label: "Email",
+                value: userEmail.isEmpty ? "Not available" : userEmail,
+              ),
+              const SizedBox(height: 10),
+              _profileInfoTile(
+                icon: Icons.phone_rounded,
+                label: "Phone",
+                value: userPhone.isEmpty ? "Not available" : userPhone,
+              ),
+              const SizedBox(height: 22),
+              SizedBox(
+                width: double.infinity,
+                height: 46,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.amber,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text(
+                    "Close",
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14.5),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _profileInfoTile({
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.amber.shade50.withOpacity(0.6),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: Colors.amber.shade700),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(fontSize: 11.5, color: Colors.grey.shade500),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -267,34 +392,41 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
+                                // FIX: profile avatar ki jaga ab menu button
+                                // (hamburger icon) hai jo drawer kholta hai.
                                 Builder(
                                   builder: (context) => InkWell(
                                     borderRadius: BorderRadius.circular(30),
                                     onTap: () => Scaffold.of(context).openDrawer(),
                                     child: Container(
-                                      padding: const EdgeInsets.all(3),
-                                      decoration: const BoxDecoration(
-                                        color: Colors.white,
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(0.25),
                                         shape: BoxShape.circle,
                                       ),
-                                      child: CircleAvatar(
-                                        radius: 20,
-                                        backgroundColor: Colors.amber.shade50,
-                                        child: Icon(Icons.person_rounded,
-                                            color: Colors.amber.shade700, size: 22),
-                                      ),
+                                      child: const Icon(Icons.menu_rounded,
+                                          color: Colors.white, size: 24),
                                     ),
                                   ),
                                 ),
-                                Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.25),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: IconButton(
-                                    icon: const Icon(Icons.notifications_none_rounded,
-                                        color: Colors.white),
-                                    onPressed: () {},
+                                // FIX: notification icon hata kar profile icon
+                                // laga diya — tap karne par name/email/phone
+                                // wala dialog khulta hai.
+                                InkWell(
+                                  borderRadius: BorderRadius.circular(30),
+                                  onTap: _showProfileInfo,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(3),
+                                    decoration: const BoxDecoration(
+                                      color: Colors.white,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: CircleAvatar(
+                                      radius: 20,
+                                      backgroundColor: Colors.amber.shade50,
+                                      child: Icon(Icons.person_rounded,
+                                          color: Colors.amber.shade700, size: 22),
+                                    ),
                                   ),
                                 ),
                               ],

@@ -31,22 +31,29 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
       });
     } else {
       setState(() => isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result.message), backgroundColor: Colors.red),
-      );
+      _showSnack(result.message, isError: true);
     }
+  }
+
+  void _showSnack(String message, {bool isError = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor:
+            isError ? Colors.red.shade400 : Colors.green.shade500,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
   }
 
   Future<void> _toggleStatus(AdminUser user) async {
     final result = await AdminService.toggleStatus(user.id);
     if (!mounted) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(result.message),
-        backgroundColor: result.success ? Colors.green : Colors.red,
-      ),
-    );
+    _showSnack(result.message, isError: !result.success);
     if (result.success) _loadUsers();
   }
 
@@ -54,16 +61,25 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text("Delete User"),
-        content: Text("Are you sure you want to delete ${user.name}? This cannot be undone."),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+        ),
+        title: const Text(
+          "Delete User",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+          "Are you sure you want to delete ${user.name}? This cannot be undone.",
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text("Cancel"),
+            child: Text("Cancel", style: TextStyle(color: Colors.grey.shade700)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text("Delete", style: TextStyle(color: Colors.red)),
+            style: TextButton.styleFrom(foregroundColor: Colors.red.shade400),
+            child: const Text("Delete"),
           ),
         ],
       ),
@@ -74,22 +90,17 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
     final result = await AdminService.deleteUser(user.id);
     if (!mounted) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(result.message),
-        backgroundColor: result.success ? Colors.green : Colors.red,
-      ),
-    );
+    _showSnack(result.message, isError: !result.success);
     if (result.success) _loadUsers();
   }
 
-  // Add ya Edit dono ke liye ek hi modal — user null ho to "Add", warna "Edit"
   void _openUserModal({AdminUser? user}) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: const Color(0xFFFFFDF5),
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (ctx) => UserFormModal(
         user: user,
@@ -101,46 +112,113 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
   Color _roleColor(String role) {
     switch (role) {
       case "admin":
-        return Colors.purple;
+        return Colors.amber.shade700;
       case "service_provider":
-        return Colors.green;
+        return Colors.green.shade600;
       default:
-        return Colors.blue;
+        return Colors.blue.shade600;
+    }
+  }
+
+  IconData _roleIcon(String role) {
+    switch (role) {
+      case "admin":
+        return Icons.admin_panel_settings_rounded;
+      case "service_provider":
+        return Icons.home_repair_service_rounded;
+      default:
+        return Icons.person_rounded;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFFFFDF5),
       appBar: AppBar(
-        title: const Text("Manage Users"),
+        elevation: 0,
         centerTitle: true,
+        backgroundColor: const Color(0xFFFFFDF5),
+        foregroundColor: Colors.black87,
+        title: const Text(
+          "Manage Users",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
+        ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _openUserModal(),
-        icon: const Icon(Icons.add),
-        label: const Text("Add User"),
+        backgroundColor: Colors.amber,
+        foregroundColor: Colors.white,
+        elevation: 2,
+        icon: const Icon(Icons.add_rounded),
+        label: const Text(
+          "Add User",
+          style: TextStyle(fontWeight: FontWeight.w600),
+        ),
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(
+              child: CircularProgressIndicator(color: Colors.amber.shade700),
+            )
           : users.isEmpty
-              ? const Center(child: Text("No users found"))
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(30),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(22),
+                          decoration: BoxDecoration(
+                            color: Colors.amber.shade50,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.people_outline_rounded,
+                            size: 50,
+                            color: Colors.amber.shade700,
+                          ),
+                        ),
+                        const SizedBox(height: 18),
+                        const Text(
+                          "No Users Found",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
               : RefreshIndicator(
+                  color: Colors.amber.shade700,
                   onRefresh: _loadUsers,
                   child: ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(12, 12, 12, 80),
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
                     itemCount: users.length,
                     itemBuilder: (context, index) {
                       final user = users[index];
 
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        elevation: 2,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 14),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(.10),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                         ),
                         child: Padding(
-                          padding: const EdgeInsets.all(14),
+                          padding: const EdgeInsets.all(16),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -148,77 +226,157 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                                 children: [
                                   CircleAvatar(
                                     radius: 24,
-                                    backgroundColor: _roleColor(user.role).withOpacity(0.15),
+                                    backgroundColor:
+                                        _roleColor(user.role).withOpacity(0.12),
                                     child: Icon(
-                                      user.role == "admin"
-                                          ? Icons.admin_panel_settings
-                                          : user.role == "service_provider"
-                                              ? Icons.home_repair_service
-                                              : Icons.person,
+                                      _roleIcon(user.role),
                                       color: _roleColor(user.role),
                                     ),
                                   ),
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           user.name,
-                                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black87,
+                                          ),
                                         ),
+                                        const SizedBox(height: 2),
                                         Text(
                                           user.email,
-                                          style: const TextStyle(color: Colors.grey, fontSize: 13),
+                                          style: TextStyle(
+                                            color: Colors.grey.shade600,
+                                            fontSize: 12.5,
+                                          ),
                                         ),
                                         Text(
                                           user.phoneNumber,
-                                          style: const TextStyle(color: Colors.grey, fontSize: 13),
+                                          style: TextStyle(
+                                            color: Colors.grey.shade600,
+                                            fontSize: 12.5,
+                                          ),
                                         ),
                                       ],
                                     ),
                                   ),
-                                  Chip(
-                                    label: Text(
-                                      user.isActive ? "Active" : "Inactive",
-                                      style: const TextStyle(color: Colors.white, fontSize: 11),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 5,
                                     ),
-                                    backgroundColor: user.isActive ? Colors.green : Colors.red,
-                                    padding: EdgeInsets.zero,
-                                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                    decoration: BoxDecoration(
+                                      color: (user.isActive
+                                              ? Colors.green.shade600
+                                              : Colors.red.shade400)
+                                          .withOpacity(0.12),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      user.isActive ? "Active" : "Inactive",
+                                      style: TextStyle(
+                                        color: user.isActive
+                                            ? Colors.green.shade700
+                                            : Colors.red.shade400,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),
 
-                              const Divider(height: 20),
+                              const SizedBox(height: 14),
+                              Divider(color: Colors.grey.shade200, height: 1),
+                              const SizedBox(height: 12),
 
                               Row(
                                 children: [
                                   Expanded(
-                                    child: OutlinedButton.icon(
-                                      onPressed: () => _openUserModal(user: user),
-                                      icon: const Icon(Icons.edit, size: 16),
-                                      label: const Text("Edit"),
+                                    child: SizedBox(
+                                      height: 42,
+                                      child: OutlinedButton.icon(
+                                        onPressed: () =>
+                                            _openUserModal(user: user),
+                                        icon: Icon(
+                                          Icons.edit_rounded,
+                                          size: 16,
+                                          color: Colors.amber.shade700,
+                                        ),
+                                        label: Text(
+                                          "Edit",
+                                          style: TextStyle(
+                                            color: Colors.amber.shade700,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        style: OutlinedButton.styleFrom(
+                                          side: BorderSide(
+                                            color: Colors.amber.shade300,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                        ),
+                                      ),
                                     ),
                                   ),
                                   const SizedBox(width: 8),
                                   Expanded(
-                                    child: OutlinedButton.icon(
-                                      style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
-                                      onPressed: () => _deleteUser(user),
-                                      icon: const Icon(Icons.delete, size: 16),
-                                      label: const Text("Delete"),
+                                    child: SizedBox(
+                                      height: 42,
+                                      child: OutlinedButton.icon(
+                                        style: OutlinedButton.styleFrom(
+                                          side: BorderSide(
+                                            color: Colors.red.shade200,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                        ),
+                                        onPressed: () => _deleteUser(user),
+                                        icon: Icon(
+                                          Icons.delete_outline_rounded,
+                                          size: 16,
+                                          color: Colors.red.shade400,
+                                        ),
+                                        label: Text(
+                                          "Delete",
+                                          style: TextStyle(
+                                            color: Colors.red.shade400,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
                                     ),
                                   ),
                                   const SizedBox(width: 8),
-                                  IconButton(
-                                    tooltip: user.isActive ? "Deactivate" : "Activate",
-                                    icon: Icon(
-                                      user.isActive ? Icons.toggle_on : Icons.toggle_off,
-                                      color: user.isActive ? Colors.green : Colors.grey,
-                                      size: 30,
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.amber.shade50,
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
-                                    onPressed: () => _toggleStatus(user),
+                                    child: IconButton(
+                                      tooltip:
+                                          user.isActive ? "Deactivate" : "Activate",
+                                      icon: Icon(
+                                        user.isActive
+                                            ? Icons.toggle_on_rounded
+                                            : Icons.toggle_off_rounded,
+                                        color: user.isActive
+                                            ? Colors.green.shade600
+                                            : Colors.grey.shade500,
+                                        size: 28,
+                                      ),
+                                      onPressed: () => _toggleStatus(user),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -235,7 +393,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
 
 // ---------------- ADD / EDIT USER MODAL ----------------
 class UserFormModal extends StatefulWidget {
-  final AdminUser? user; // null = Add mode, non-null = Edit mode
+  final AdminUser? user;
   final VoidCallback onSaved;
 
   const UserFormModal({super.key, this.user, required this.onSaved});
@@ -275,6 +433,20 @@ class _UserFormModalState extends State<UserFormModal> {
     super.dispose();
   }
 
+  void _showSnack(String message, {bool isError = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor:
+            isError ? Colors.red.shade400 : Colors.green.shade500,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
+  }
+
   Future<void> _save() async {
     final name = nameController.text.trim();
     final email = emailController.text.trim();
@@ -282,9 +454,7 @@ class _UserFormModalState extends State<UserFormModal> {
     final password = passwordController.text.trim();
 
     if (name.isEmpty || email.isEmpty || phone.isEmpty || (!isEditMode && password.isEmpty)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please fill all fields"), backgroundColor: Colors.red),
-      );
+      _showSnack("Please fill all fields", isError: true);
       return;
     }
 
@@ -309,17 +479,37 @@ class _UserFormModalState extends State<UserFormModal> {
     if (!mounted) return;
     setState(() => isSaving = false);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(result.message),
-        backgroundColor: result.success ? Colors.green : Colors.red,
-      ),
-    );
+    _showSnack(result.message, isError: !result.success);
 
     if (result.success) {
       widget.onSaved();
       Navigator.pop(context);
     }
+  }
+
+  InputDecoration _inputDecoration({
+    required String label,
+    required IconData icon,
+  }) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: TextStyle(color: Colors.grey.shade600),
+      prefixIcon: Icon(icon, color: Colors.amber.shade700),
+      filled: true,
+      fillColor: Colors.amber.shade50.withOpacity(0.5),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide(color: Colors.grey.shade200),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: Colors.amber, width: 1.8),
+      ),
+    );
   }
 
   @override
@@ -345,22 +535,40 @@ class _UserFormModalState extends State<UserFormModal> {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 18),
+
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.amber.shade50,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                isEditMode ? Icons.edit_rounded : Icons.person_add_rounded,
+                color: Colors.amber.shade700,
+                size: 26,
+              ),
+            ),
+
+            const SizedBox(height: 12),
 
             Text(
               isEditMode ? "Edit User" : "Add New User",
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
               textAlign: TextAlign.center,
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
 
             TextField(
               controller: nameController,
-              decoration: InputDecoration(
-                labelText: "Full Name",
-                prefixIcon: const Icon(Icons.person),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              decoration: _inputDecoration(
+                label: "Full Name",
+                icon: Icons.person_rounded,
               ),
             ),
 
@@ -369,10 +577,9 @@ class _UserFormModalState extends State<UserFormModal> {
             TextField(
               controller: emailController,
               keyboardType: TextInputType.emailAddress,
-              decoration: InputDecoration(
-                labelText: "Email",
-                prefixIcon: const Icon(Icons.email),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              decoration: _inputDecoration(
+                label: "Email",
+                icon: Icons.email_rounded,
               ),
             ),
 
@@ -381,24 +588,20 @@ class _UserFormModalState extends State<UserFormModal> {
             TextField(
               controller: phoneController,
               keyboardType: TextInputType.phone,
-              decoration: InputDecoration(
-                labelText: "Phone Number",
-                prefixIcon: const Icon(Icons.phone),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              decoration: _inputDecoration(
+                label: "Phone Number",
+                icon: Icons.phone_rounded,
               ),
             ),
 
-            // Password sirf Add mode mein dikhega — edit mode mein password change ka
-            // alag flow hona chahiye (security best practice)
             if (!isEditMode) ...[
               const SizedBox(height: 14),
               TextField(
                 controller: passwordController,
                 obscureText: true,
-                decoration: InputDecoration(
-                  labelText: "Password",
-                  prefixIcon: const Icon(Icons.lock),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                decoration: _inputDecoration(
+                  label: "Password",
+                  icon: Icons.lock_rounded,
                 ),
               ),
             ],
@@ -407,14 +610,15 @@ class _UserFormModalState extends State<UserFormModal> {
 
             DropdownButtonFormField<String>(
               initialValue: selectedRole,
-              decoration: InputDecoration(
-                labelText: "Role",
-                prefixIcon: const Icon(Icons.badge),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              decoration: _inputDecoration(
+                label: "Role",
+                icon: Icons.badge_rounded,
               ),
               items: const [
                 DropdownMenuItem(value: "user", child: Text("User")),
-                DropdownMenuItem(value: "service_provider", child: Text("Service Provider")),
+                DropdownMenuItem(
+                    value: "service_provider",
+                    child: Text("Service Provider")),
                 DropdownMenuItem(value: "admin", child: Text("Admin")),
               ],
               onChanged: (value) {
@@ -422,19 +626,36 @@ class _UserFormModalState extends State<UserFormModal> {
               },
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 26),
 
             SizedBox(
-              height: 50,
+              height: 56,
               child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.amber,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
                 onPressed: isSaving ? null : _save,
                 child: isSaving
                     ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                        height: 22,
+                        width: 22,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
                       )
-                    : Text(isEditMode ? "Update User" : "Create User"),
+                    : Text(
+                        isEditMode ? "Update User" : "Create User",
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
               ),
             ),
           ],

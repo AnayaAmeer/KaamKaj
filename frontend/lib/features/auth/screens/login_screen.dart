@@ -5,6 +5,7 @@ import 'package:my_app/features/admin/admin_home_screen.dart';
 import 'package:my_app/features/role_selection/screens/role_selection_screen.dart';
 import 'package:my_app/core/services/auth_service.dart';
 import 'customer_register_screen.dart';
+import 'forgot_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   final String role;
@@ -264,20 +265,25 @@ class _LoginScreenState extends State<LoginScreen> {
 
               const SizedBox(height: 12),
 
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () {},
-                  child: Text(
-                    "Forgot Password?",
-                    style: TextStyle(
-                      color: Colors.amber.shade700,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 13.5,
-                    ),
-                  ),
-                ),
-              ),
+             Align(
+  alignment: Alignment.centerRight,
+  child: TextButton(
+    onPressed: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()),
+      );
+    },
+    child: Text(
+      "Forgot Password?",
+      style: TextStyle(
+        color: Colors.amber.shade700,
+        fontWeight: FontWeight.w500,
+        fontSize: 13.5,
+      ),
+    ),
+  ),
+),
 
               const SizedBox(height: 14),
 

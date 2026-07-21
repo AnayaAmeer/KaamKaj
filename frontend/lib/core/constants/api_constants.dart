@@ -4,7 +4,7 @@ class ApiConstants {
   static const String register = "$baseUrl/auth/register";
   static const String login = "$baseUrl/auth/login";
   static const String me = "$baseUrl/auth/me";
-  static const String providerDashboard = "$baseUrl/provider/dashboard";
+//   static const String providerDashboard = "$baseUrl/provider/dashboard";
   static const String adminUsers = "$baseUrl/admin/users";
 
   static String userById(String id) => "$baseUrl/admin/users/$id";
@@ -108,4 +108,19 @@ static String updateProviderOrderStatus(String id) =>
     "$orders/provider/$id/status";
 
 static const String adminOrders = "$orders/admin";
+// ================= Provider Dashboard =================
+
+static const String providerDashboard =
+      "$baseUrl/provider/providerdashboard";
+// ================= Forgot Password =================
+  static const String forgotPasswordBase = "$baseUrl/forgot-password";
+
+  static const String sendForgotPasswordOtp =
+      "$forgotPasswordBase/send-otp";
+
+  static const String verifyForgotPasswordOtp =
+      "$forgotPasswordBase/verify-otp";
+
+  static const String resetForgotPassword =
+      "$forgotPasswordBase/reset-password";
 }

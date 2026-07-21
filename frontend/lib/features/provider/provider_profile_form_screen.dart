@@ -13,8 +13,6 @@ import 'package:my_app/core/services/service_service.dart';
 
 class ProviderProfileFormScreen extends StatefulWidget {
 
-  // null == naya profile create karna hai
-  // non-null == is profile ko edit karna hai
   final ProviderProfileModel? existingProfile;
 
   const ProviderProfileFormScreen({super.key, this.existingProfile});
@@ -34,13 +32,13 @@ class _ProviderProfileFormScreenState
   final addressController = TextEditingController();
   final experienceController = TextEditingController();
   final aboutController = TextEditingController();
-final servicePriceController = TextEditingController();
-  
+  final servicePriceController = TextEditingController();
+
   List<CategoryModel> categories = [];
-List<ServiceModel> availableServices = [];
-ServiceModel? selectedService;
-List<ProviderServiceModel> services = [];
-String? selectedCategory;
+  List<ServiceModel> availableServices = [];
+  ServiceModel? selectedService;
+  List<ProviderServiceModel> services = [];
+  String? selectedCategory;
   String availabilityStatus = "available";
 
   File? pickedImage;
@@ -73,13 +71,12 @@ String? selectedCategory;
       experienceController.text = profile.experience;
       aboutController.text = profile.about;
       selectedCategory = profile.categoryId;
-      
+
       availabilityStatus = profile.availabilityStatus;
       services = List<ProviderServiceModel>.from(profile.services);
 
     } else {
 
-      // naya profile — name/email login se le lo
       final userResult = await AuthService.getProfile();
 
       if (userResult.success && userResult.data != null) {
@@ -129,6 +126,20 @@ String? selectedCategory;
 
   }
 
+  void _showSnack(String message, {bool isError = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor:
+            isError ? Colors.red.shade400 : Colors.green.shade500,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
+  }
+
 
   Future<void> _submit() async {
 
@@ -140,8 +151,9 @@ String? selectedCategory;
       selectedCategory == null || services.isEmpty
     ) {
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please fill all fields and add at least one service")),
+      _showSnack(
+        "Please fill all fields and add at least one service",
+        isError: true,
       );
 
       return;
@@ -189,31 +201,66 @@ String? selectedCategory;
 
     if (result.success) {
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            isEdit
-                ? "Profile updated. Status: Pending"
-                : "Profile submitted. Status: Pending",
-          ),
-          backgroundColor: Colors.green,
-        ),
+      _showSnack(
+        isEdit
+            ? "Profile updated. Status: Pending"
+            : "Profile submitted. Status: Pending",
       );
 
-      // caller (list screen) ko batao ke refresh kar le
       Navigator.pop(context, true);
 
     } else {
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(result.message),
-          backgroundColor: Colors.red,
-        ),
-      );
+      _showSnack(result.message, isError: true);
 
     }
 
+  }
+
+
+  InputDecoration _inputDecoration({
+    required String label,
+    String? hint,
+    IconData? icon,
+    String? prefixText,
+  }) {
+    return InputDecoration(
+      labelText: label,
+      hintText: hint,
+      prefixText: prefixText,
+      labelStyle: TextStyle(color: Colors.grey.shade600),
+      prefixIcon: icon != null
+          ? Icon(icon, color: Colors.amber.shade700)
+          : null,
+      filled: true,
+      fillColor: Colors.amber.shade50.withOpacity(0.5),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide(color: Colors.grey.shade200),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: Colors.amber, width: 1.8),
+      ),
+    );
+  }
+
+  Widget _sectionTitle(String title) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 17,
+          fontWeight: FontWeight.bold,
+          color: Colors.black87,
+        ),
+      ),
+    );
   }
 
 
@@ -222,60 +269,94 @@ String? selectedCategory;
 
     return Scaffold(
 
+      backgroundColor: const Color(0xFFFFFDF5),
+
       appBar: AppBar(
-        title: Text(isEdit ? "Edit Profile" : "Add New Profile"),
+        elevation: 0,
+        centerTitle: true,
+        backgroundColor: const Color(0xFFFFFDF5),
+        foregroundColor: Colors.black87,
+        title: Text(
+          isEdit ? "Edit Profile" : "Add New Profile",
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
+        ),
       ),
 
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           children: [
 
+            // ===== Profile Image =====
             Center(
               child: GestureDetector(
                 onTap: _pickImage,
                 child: Stack(
                   children: [
 
-                    CircleAvatar(
-                      radius: 55,
-                      backgroundColor: Colors.grey.shade200,
-                      backgroundImage: pickedImage != null
+                    Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 10,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: CircleAvatar(
+                        radius: 55,
+                        backgroundColor: Colors.amber.shade50,
+                        backgroundImage: pickedImage != null
 
-                          ? FileImage(pickedImage!)
+                            ? FileImage(pickedImage!)
 
-                          : (isEdit &&
-                                  widget.existingProfile!.image.isNotEmpty)
+                            : (isEdit &&
+                                    widget.existingProfile!.image.isNotEmpty)
 
-                              ? NetworkImage(
-                                  widget.existingProfile!.image,
-                                ) as ImageProvider
+                                ? NetworkImage(
+                                    widget.existingProfile!.image,
+                                  ) as ImageProvider
 
-                              : null,
+                                : null,
 
-                      child: (pickedImage == null &&
-                              (!isEdit ||
-                                  widget.existingProfile!.image.isEmpty))
+                        child: (pickedImage == null &&
+                                (!isEdit ||
+                                    widget.existingProfile!.image.isEmpty))
 
-                          ? const Icon(
-                              Icons.person,
-                              size: 55,
-                              color: Colors.grey,
-                            )
+                            ? Icon(
+                                Icons.person_rounded,
+                                size: 55,
+                                color: Colors.amber.shade700,
+                              )
 
-                          : null,
+                            : null,
+                      ),
                     ),
 
-                    const Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: CircleAvatar(
-                        radius: 18,
-                        backgroundColor: Colors.deepPurple,
-                        child: Icon(
-                          Icons.camera_alt,
-                          size: 18,
+                    Positioned(
+                      bottom: 2,
+                      right: 2,
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: const BoxDecoration(
                           color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                        child: CircleAvatar(
+                          radius: 17,
+                          backgroundColor: Colors.amber,
+                          child: const Icon(
+                            Icons.camera_alt_rounded,
+                            size: 17,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
@@ -285,280 +366,426 @@ String? selectedCategory;
               ),
             ),
 
-            const SizedBox(height: 25),
+            const SizedBox(height: 30),
 
-            // Naya profile create karte waqt bhi name/email edit
-            // ho sakte hain, taake har profile ki apni detail ho sake
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(
-                labelText: "Name",
-                border: OutlineInputBorder(),
+            // ===== Basic Info Card =====
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(.08),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-            ),
+              child: Column(
+                children: [
 
-            const SizedBox(height: 15),
+                  _sectionTitle("Basic Information"),
+                  const SizedBox(height: 16),
 
-            TextField(
-              controller: emailController,
-              decoration: const InputDecoration(
-                labelText: "Email",
-                border: OutlineInputBorder(),
-              ),
-            ),
-
-            const SizedBox(height: 15),
-
-            TextField(
-              controller: phoneController,
-              keyboardType: TextInputType.phone,
-              decoration: const InputDecoration(
-                labelText: "Phone Number",
-                hintText: "03xxxxxxxxx",
-                border: OutlineInputBorder(),
-              ),
-            ),
-
-            const SizedBox(height: 15),
-
-            TextField(
-              controller: addressController,
-              decoration: const InputDecoration(
-                labelText: "Address",
-                border: OutlineInputBorder(),
-              ),
-            ),
-
-            const SizedBox(height: 15),
-
-            loadingCategories
-
-                ? const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 10),
-                    child: Text("Loading categories..."),
-                  )
-
-                : DropdownButtonFormField<String>(
-                    value: selectedCategory,
-                    decoration: const InputDecoration(
-                      labelText: "Category",
-                      border: OutlineInputBorder(),
+                  TextField(
+                    controller: nameController,
+                    decoration: _inputDecoration(
+                      label: "Name",
+                      icon: Icons.badge_rounded,
                     ),
-                    items: categories.map((category) {
+                  ),
+
+                  const SizedBox(height: 14),
+
+                  TextField(
+                    controller: emailController,
+                    decoration: _inputDecoration(
+                      label: "Email",
+                      icon: Icons.email_rounded,
+                    ),
+                  ),
+
+                  const SizedBox(height: 14),
+
+                  TextField(
+                    controller: phoneController,
+                    keyboardType: TextInputType.phone,
+                    decoration: _inputDecoration(
+                      label: "Phone Number",
+                      hint: "03xxxxxxxxx",
+                      icon: Icons.phone_rounded,
+                    ),
+                  ),
+
+                  const SizedBox(height: 14),
+
+                  TextField(
+                    controller: addressController,
+                    decoration: _inputDecoration(
+                      label: "Address",
+                      icon: Icons.location_on_rounded,
+                    ),
+                  ),
+
+                  const SizedBox(height: 14),
+
+                  loadingCategories
+
+                      ? Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                height: 16,
+                                width: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.amber.shade700,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                "Loading categories...",
+                                style: TextStyle(color: Colors.grey.shade600),
+                              ),
+                            ],
+                          ),
+                        )
+
+                      : DropdownButtonFormField<String>(
+                          value: selectedCategory,
+                          decoration: _inputDecoration(
+                            label: "Category",
+                            icon: Icons.category_rounded,
+                          ),
+                          items: categories.map((category) {
+                            return DropdownMenuItem(
+                              value: category.id,
+                              child: Text(category.name),
+                            );
+                          }).toList(),
+                          onChanged: (value) async {
+                            setState(() {
+                              selectedCategory = value;
+                              selectedService = null;
+                              availableServices = [];
+                            });
+
+                            if (value != null) {
+                              final result = await ServiceService
+                                  .getServicesByCategory(value);
+                              if (result.success) {
+                                setState(() {
+                                  availableServices = result.data;
+                                });
+                              }
+                            }
+                          },
+                        ),
+
+                  const SizedBox(height: 14),
+
+                  TextField(
+                    controller: experienceController,
+                    decoration: _inputDecoration(
+                      label: "Experience",
+                      hint: "e.g. 3 years",
+                      icon: Icons.work_history_rounded,
+                    ),
+                  ),
+
+                  const SizedBox(height: 14),
+
+                  TextField(
+                    controller: aboutController,
+                    maxLines: 4,
+                    decoration: _inputDecoration(
+                      label: "About",
+                      hint: "Tell customers about your work",
+                      icon: Icons.info_rounded,
+                    ),
+                  ),
+
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // ===== Services Card =====
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(.08),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+
+                  _sectionTitle("Services"),
+                  const SizedBox(height: 16),
+
+                  DropdownButtonFormField<ServiceModel>(
+                    value: selectedService,
+                    decoration: _inputDecoration(
+                      label: "Select Service",
+                      icon: Icons.design_services_rounded,
+                    ),
+                    items: availableServices.map((s) {
                       return DropdownMenuItem(
-                        value: category.id,
-                        child: Text(category.name),
+                        value: s,
+                        child: Text(s.name),
                       );
                     }).toList(),
-                   onChanged: (value) async {
-  setState(() {
-    selectedCategory = value;
-    selectedService = null;
-    availableServices = [];
-  });
-
-  if (value != null) {
-    final result = await ServiceService.getServicesByCategory(value);
-    if (result.success) {
-      setState(() {
-        availableServices = result.data;
-      });
-    }
-  }
-},
-                  ),
-
-            const SizedBox(height: 15),
-
-            TextField(
-              controller: experienceController,
-              decoration: const InputDecoration(
-                labelText: "Experience",
-                hintText: "e.g. 3 years",
-                border: OutlineInputBorder(),
-              ),
-            ),
-
-            const SizedBox(height: 15),
-
-            TextField(
-              controller: aboutController,
-              maxLines: 4,
-              decoration: const InputDecoration(
-                labelText: "About",
-                hintText: "Tell customers about your work",
-                border: OutlineInputBorder(),
-              ),
-            ),
-
-            const SizedBox(height: 15),
-            const SizedBox(height: 20),
-
-const Align(
-  alignment: Alignment.centerLeft,
-  child: Text(
-    "Services",
-    style: TextStyle(
-      fontSize: 17,
-      fontWeight: FontWeight.bold,
-    ),
-  ),
-),
-
-const SizedBox(height: 10),
-
-DropdownButtonFormField<ServiceModel>(
-  value: selectedService,
-  decoration: const InputDecoration(
-    labelText: "Select Service",
-    border: OutlineInputBorder(),
-  ),
-  items: availableServices.map((s) {
-    return DropdownMenuItem(
-      value: s,
-      child: Text(s.name),
-    );
-  }).toList(),
-  onChanged: (value) {
-    setState(() {
-      selectedService = value;
-    });
-  },
-),
-
-const SizedBox(height: 12),
-
-TextField(
-  controller: servicePriceController,
-  keyboardType: TextInputType.number,
-  decoration: const InputDecoration(
-    labelText: "Price",
-    prefixText: "Rs. ",
-    border: OutlineInputBorder(),
-  ),
-),
-
-const SizedBox(height: 10),
-
-SizedBox(
-  width: double.infinity,
-  child: ElevatedButton.icon(
-    icon: const Icon(Icons.add),
-    label: const Text("Add Service"),
-    onPressed: () {
-      if (selectedService == null || servicePriceController.text.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Select a service and enter price")),
-        );
-        return;
-      }
-
-      final alreadyAdded = services.any(
-        (s) => s.serviceId == selectedService!.id,
-      );
-
-      if (alreadyAdded) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Service already added")),
-        );
-        return;
-      }
-
-      setState(() {
-        services.add(
-          ProviderServiceModel(
-            serviceId: selectedService!.id,
-            serviceName: selectedService!.name,
-            description: selectedService!.description,
-            price: double.parse(servicePriceController.text),
-          ),
-        );
-
-        selectedService = null;
-        servicePriceController.clear();
-      });
-    },
-  ),
-),
-
-const SizedBox(height: 15),
-
-ListView.builder(
-  shrinkWrap: true,
-  physics: const NeverScrollableScrollPhysics(),
-  itemCount: services.length,
-  itemBuilder: (context, index) {
-    final service = services[index];
-
-    return Card(
-      child: ListTile(
-        title: Text(service.serviceName),
-        subtitle: Text("Rs. ${service.price}"),
-        trailing: IconButton(
-          icon: const Icon(Icons.delete, color: Colors.red),
-          onPressed: () {
-            setState(() {
-              services.removeAt(index);
-            });
-          },
-        ),
-      ),
-    );
-  },
-),
-
-const SizedBox(height: 20),
-
-            Row(
-              children: [
-
-                Expanded(
-                  child: RadioListTile<String>(
-                    contentPadding: EdgeInsets.zero,
-                    title: const Text("Available"),
-                    value: "available",
-                    groupValue: availabilityStatus,
                     onChanged: (value) {
                       setState(() {
-                        availabilityStatus = value!;
+                        selectedService = value;
                       });
                     },
                   ),
-                ),
 
-                Expanded(
-                  child: RadioListTile<String>(
-                    contentPadding: EdgeInsets.zero,
-                    title: const Text("Unavailable"),
-                    value: "unavailable",
-                    groupValue: availabilityStatus,
-                    onChanged: (value) {
-                      setState(() {
-                        availabilityStatus = value!;
-                      });
-                    },
+                  const SizedBox(height: 14),
+
+                  TextField(
+                    controller: servicePriceController,
+                    keyboardType: TextInputType.number,
+                    decoration: _inputDecoration(
+                      label: "Price",
+                      prefixText: "Rs. ",
+                    ),
                   ),
-                ),
 
-              ],
+                  const SizedBox(height: 14),
+
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: OutlinedButton.icon(
+                      icon: Icon(
+                        Icons.add_rounded,
+                        color: Colors.amber.shade700,
+                      ),
+                      label: Text(
+                        "Add Service",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: Colors.amber.shade700,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: Colors.amber.shade300),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      onPressed: () {
+                        if (selectedService == null ||
+                            servicePriceController.text.isEmpty) {
+                          _showSnack(
+                            "Select a service and enter price",
+                            isError: true,
+                          );
+                          return;
+                        }
+
+                        final alreadyAdded = services.any(
+                          (s) => s.serviceId == selectedService!.id,
+                        );
+
+                        if (alreadyAdded) {
+                          _showSnack("Service already added", isError: true);
+                          return;
+                        }
+
+                        setState(() {
+                          services.add(
+                            ProviderServiceModel(
+                              serviceId: selectedService!.id,
+                              serviceName: selectedService!.name,
+                              description: selectedService!.description,
+                              price: double.parse(
+                                  servicePriceController.text),
+                            ),
+                          );
+
+                          selectedService = null;
+                          servicePriceController.clear();
+                        });
+                      },
+                    ),
+                  ),
+
+                  if (services.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: services.length,
+                      itemBuilder: (context, index) {
+                        final service = services[index];
+
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 10),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.amber.shade50.withOpacity(.5),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: Colors.amber.shade100,
+                            ),
+                          ),
+                          child: ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            title: Text(
+                              service.serviceName,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14.5,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            subtitle: Text(
+                              "Rs. ${service.price}",
+                              style: TextStyle(
+                                color: Colors.amber.shade700,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            trailing: IconButton(
+                              icon: Icon(
+                                Icons.delete_outline_rounded,
+                                color: Colors.red.shade400,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  services.removeAt(index);
+                                });
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+
+                ],
+              ),
             ),
 
             const SizedBox(height: 20),
+
+            // ===== Availability Card =====
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(.08),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12, left: 10),
+                    child: _sectionTitle("Availability"),
+                  ),
+                  Row(
+                    children: [
+
+                      Expanded(
+                        child: RadioListTile<String>(
+                          activeColor: Colors.amber.shade700,
+                          title: const Text(
+                            "Available",
+                            style: TextStyle(fontSize: 13.5),
+                          ),
+                          value: "available",
+                          groupValue: availabilityStatus,
+                          onChanged: (value) {
+                            setState(() {
+                              availabilityStatus = value!;
+                            });
+                          },
+                        ),
+                      ),
+
+                      Expanded(
+                        child: RadioListTile<String>(
+                          activeColor: Colors.amber.shade700,
+                          title: const Text(
+                            "Unavailable",
+                            style: TextStyle(fontSize: 13.5),
+                          ),
+                          value: "unavailable",
+                          groupValue: availabilityStatus,
+                          onChanged: (value) {
+                            setState(() {
+                              availabilityStatus = value!;
+                            });
+                          },
+                        ),
+                      ),
+
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 28),
 
             SizedBox(
               width: double.infinity,
-              height: 50,
+              height: 56,
               child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.amber,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
                 onPressed: submitting ? null : _submit,
                 child: submitting
-                    ? const CircularProgressIndicator(
-                        color: Colors.white,
+                    ? const SizedBox(
+                        height: 22,
+                        width: 22,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
                       )
-                    : Text(isEdit ? "Update Profile" : "Submit Profile"),
+                    : Text(
+                        isEdit ? "Update Profile" : "Submit Profile",
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
               ),
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
 
           ],
         ),
@@ -577,7 +804,7 @@ const SizedBox(height: 20),
     addressController.dispose();
     experienceController.dispose();
     aboutController.dispose();
-servicePriceController.dispose();
+    servicePriceController.dispose();
     super.dispose();
   }
 

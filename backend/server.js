@@ -1,12 +1,15 @@
 const express = require("express");
 const dotenv = require("dotenv");
+dotenv.config();
 const cors = require("cors");
 const helmet = require("helmet");
 const connectDB = require("./config/db");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
+const providerDashboardRoutes = require("./routes/providerDashboardRoutes");
+const forgotPasswordRoutes = require("./routes/forgotPasswordRoutes");
 
 
-dotenv.config();
+
 connectDB();
 
 const app = express();
@@ -33,6 +36,11 @@ app.use(
 require("./routes/providerProfileRoutes")
 );
 app.use("/api/orders", require("./routes/orderRoutes"));
+app.use("/api/provider/providerdashboard", providerDashboardRoutes);
+app.use(
+  "/api/forgot-password",
+  forgotPasswordRoutes
+);
 app.get("/", (req, res) => {
   res.json({ success: true, message: "Auth API is running" });
 });

@@ -20,6 +20,20 @@ class _AdminCategoryScreenState extends State<AdminCategoryScreen> {
     _loadCategories();
   }
 
+  void _showSnack(String message, {bool isError = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor:
+            isError ? Colors.red.shade400 : Colors.green.shade500,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
+  }
+
   Future<void> _loadCategories() async {
     setState(() => isLoading = true);
 
@@ -35,9 +49,7 @@ class _AdminCategoryScreenState extends State<AdminCategoryScreen> {
     });
 
     if (!result.success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result.message)),
-      );
+      _showSnack(result.message, isError: true);
     }
   }
 
@@ -45,16 +57,23 @@ class _AdminCategoryScreenState extends State<AdminCategoryScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text("Delete Category"),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+        ),
+        title: const Text(
+          "Delete Category",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         content: Text('Kya aap "${category.name}" delete karna chahte hain?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text("Cancel"),
+            child: Text("Cancel", style: TextStyle(color: Colors.grey.shade700)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text("Delete", style: TextStyle(color: Colors.red)),
+            style: TextButton.styleFrom(foregroundColor: Colors.red.shade400),
+            child: const Text("Delete"),
           ),
         ],
       ),
@@ -67,14 +86,10 @@ class _AdminCategoryScreenState extends State<AdminCategoryScreen> {
     if (!mounted) return;
 
     if (result.success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Category delete ho gayi")),
-      );
+      _showSnack("Category delete ho gayi");
       _loadCategories();
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result.message)),
-      );
+      _showSnack(result.message, isError: true);
     }
   }
 
@@ -92,58 +107,152 @@ class _AdminCategoryScreenState extends State<AdminCategoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFFFFDF5),
       appBar: AppBar(
-        title: const Text("Manage Categories"),
+        elevation: 0,
         centerTitle: true,
+        backgroundColor: const Color(0xFFFFFDF5),
+        foregroundColor: Colors.black87,
+        title: const Text(
+          "Manage Categories",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
+        ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _openForm(),
-        icon: const Icon(Icons.add),
-        label: const Text("Add Category"),
+        backgroundColor: Colors.amber,
+        foregroundColor: Colors.white,
+        elevation: 2,
+        icon: const Icon(Icons.add_rounded),
+        label: const Text(
+          "Add Category",
+          style: TextStyle(fontWeight: FontWeight.w600),
+        ),
       ),
       body: RefreshIndicator(
+        color: Colors.amber.shade700,
         onRefresh: _loadCategories,
         child: isLoading
-            ? const Center(child: CircularProgressIndicator())
+            ? Center(
+                child: CircularProgressIndicator(color: Colors.amber.shade700),
+              )
             : categories.isEmpty
                 ? ListView(
-                    children: const [
-                      SizedBox(height: 150),
-                      Center(child: Text("Koi category nahi hai. '+' pe click karke add karein.")),
+                    children: [
+                      const SizedBox(height: 100),
+                      Center(
+                        child: Column(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(22),
+                              decoration: BoxDecoration(
+                                color: Colors.amber.shade50,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.category_rounded,
+                                size: 50,
+                                color: Colors.amber.shade700,
+                              ),
+                            ),
+                            const SizedBox(height: 18),
+                            const Text(
+                              "No Categories Found",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 40),
+                              child: Text(
+                                "Tap \"Add Category\" pe click karke naya add karein",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(color: Colors.grey.shade600),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   )
-                : ListView.separated(
-                    padding: const EdgeInsets.all(12),
+                : ListView.builder(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
                     itemCount: categories.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 8),
                     itemBuilder: (context, index) {
                       final cat = categories[index];
-                      return Card(
-                        elevation: 1,
-                        child: ListTile(
-                          leading: ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.network(
-                              cat.imageUrl,
-                              width: 50,
-                              height: 50,
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) =>
-                                  const Icon(Icons.broken_image, size: 40),
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 14),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(18),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(.10),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
                             ),
-                          ),
-                          title: Text(cat.name, style: const TextStyle(fontWeight: FontWeight.w600)),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
+                          ],
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Row(
                             children: [
+
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(14),
+                                child: Image.network(
+                                  cat.imageUrl,
+                                  width: 54,
+                                  height: 54,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) => Container(
+                                    width: 54,
+                                    height: 54,
+                                    color: Colors.amber.shade50,
+                                    child: Icon(
+                                      Icons.broken_image_rounded,
+                                      color: Colors.amber.shade700,
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                              const SizedBox(width: 14),
+
+                              Expanded(
+                                child: Text(
+                                  cat.name,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 15.5,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                              ),
+
                               IconButton(
-                                icon: const Icon(Icons.edit, color: Colors.blue),
+                                icon: Icon(
+                                  Icons.edit_rounded,
+                                  color: Colors.amber.shade700,
+                                  size: 21,
+                                ),
                                 onPressed: () => _openForm(category: cat),
                               ),
                               IconButton(
-                                icon: const Icon(Icons.delete, color: Colors.red),
+                                icon: Icon(
+                                  Icons.delete_outline_rounded,
+                                  color: Colors.red.shade400,
+                                  size: 21,
+                                ),
                                 onPressed: () => _confirmDelete(cat),
                               ),
+
                             ],
                           ),
                         ),
