@@ -178,10 +178,10 @@ class _ProviderHomeScreenState extends State<ProviderHomeScreen> {
 
             ListTile(
               leading:
-                  Icon(Icons.attach_money_rounded, color: Colors.amber.shade700),
+                  Icon(Icons.currency_rupee_rounded, color: Colors.amber.shade700),
               title: const Text("Earnings"),
               subtitle: Text(
-                "Rs. ${stats?.earnings.toStringAsFixed(0) ?? "0"}",
+                "PKR ${stats?.earnings.toStringAsFixed(0) ?? "0"}",
               ),
             ),
 
@@ -449,10 +449,10 @@ class _ProviderHomeScreenState extends State<ProviderHomeScreen> {
                             const SizedBox(width: 12),
                             Expanded(
                               child: StatCard(
-                                icon: Icons.attach_money_rounded,
+                                icon: Icons.currency_rupee_rounded,
                                 title: "Earnings",
                                 value:
-                                    "Rs ${stats?.earnings.toStringAsFixed(0) ?? "0"}",
+                                    "PKR ${stats?.earnings.toStringAsFixed(0) ?? "0"}",
                                 color: Colors.amber.shade700,
                               ),
                             ),

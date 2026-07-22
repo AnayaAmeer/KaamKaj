@@ -26,9 +26,8 @@ class AuthService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString("token", token);
     await prefs.setString("role", role);
-    // Debug ke liye — terminal mein token dikhega
-  debugPrint("✅ Token saved: $token");
-  debugPrint("✅ Role saved: $role");
+    debugPrint("✅ Token saved: $token");
+    debugPrint("✅ Role saved: $role");
   }
 
   static Future<String?> getToken() async {
@@ -41,12 +40,12 @@ class AuthService {
     return prefs.getString("role");
   }
 
- static Future<void> logout() async {
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.remove("token");
-  await prefs.remove("role");
-  debugPrint("🚪 Logged out — token & role removed");
-}
+  static Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove("token");
+    await prefs.remove("role");
+    debugPrint("🚪 Logged out — token & role removed");
+  }
 
   // ---------------- REGISTER ----------------
   static Future<AuthResult> register({
@@ -71,21 +70,16 @@ class AuthService {
 
       final body = jsonDecode(response.body);
 
+      // ✅ Register pe ab token/role nahi milta — sirf email verification
+      // required hai, isliye success pe SIRF message + email milta hai
       if (response.statusCode == 201 && body["success"] == true) {
-        final token = body["data"]["token"];
-        final userRole = body["data"]["role"];
-        await _saveToken(token, userRole);
-
         return AuthResult(
           success: true,
-          message: body["message"] ?? "Registered successfully",
-          token: token,
-          role: userRole,
-          data: body["data"],
+          message: body["message"] ?? "Registration successful. Please verify your email.",
+          data: body["data"], // { email: "..." }
         );
       }
 
-      // Validation errors array ho sakti hai
       String errorMsg = body["message"] ?? "Registration failed";
       if (body["errors"] != null && body["errors"] is List && body["errors"].isNotEmpty) {
         errorMsg = body["errors"][0]["message"];

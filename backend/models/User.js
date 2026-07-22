@@ -40,6 +40,24 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    // ===========================
+    // Email Verification Fields
+    // ===========================
+
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+
+    verificationToken: {
+      type: String,
+      select: false,
+    },
+
+    verificationTokenExpiry: {
+      type: Date,
+      select: false,
+    },
 
     // ===========================
     // Forgot Password Fields

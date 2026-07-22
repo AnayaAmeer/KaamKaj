@@ -165,21 +165,6 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                 _openManageUsers();
               },
             ),
-
-            ListTile(
-              leading: Icon(Icons.category_rounded, color: Colors.amber.shade700),
-              title: const Text("Manage Categories"),
-              onTap: () {
-                Navigator.pop(context);
-
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const AdminCategoryScreen(),
-                  ),
-                );
-              },
-            ),
             ListTile(
               leading: Icon(Icons.miscellaneous_services_rounded,
                   color: Colors.amber.shade700),
@@ -195,6 +180,22 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                 );
               },
             ),
+
+            ListTile(
+              leading: Icon(Icons.category_rounded, color: Colors.amber.shade700),
+              title: const Text("Manage Categories"),
+              onTap: () {
+                Navigator.pop(context);
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const AdminCategoryScreen(),
+                  ),
+                );
+              },
+            ),
+            
 
             ListTile(
               leading: Icon(Icons.assignment_rounded, color: Colors.amber.shade700),
@@ -435,6 +436,20 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                     ),
 
                     Divider(height: 1, color: Colors.grey.shade100),
+                     _QuickActionTile(
+                      icon: Icons.miscellaneous_services_rounded,
+                      title: "Manage Services",
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const ManageServicesScreen(),
+                          ),
+                        );
+                      },
+                    ),
+
+                    Divider(height: 1, color: Colors.grey.shade100),
 
                     _QuickActionTile(
                       icon: Icons.category_rounded,
@@ -452,20 +467,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
 
                     Divider(height: 1, color: Colors.grey.shade100),
 
-                    _QuickActionTile(
-                      icon: Icons.miscellaneous_services_rounded,
-                      title: "Manage Services",
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const ManageServicesScreen(),
-                          ),
-                        );
-                      },
-                    ),
-
-                    Divider(height: 1, color: Colors.grey.shade100),
+                   
 
                     _QuickActionTile(
                       icon: Icons.assignment_rounded,

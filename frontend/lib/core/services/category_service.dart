@@ -52,7 +52,7 @@ class CategoryService {
       if (res.statusCode == 201 && body["success"] == true) {
         return CategoryResult(success: true, data: CategoryModel.fromJson(body["data"]));
       }
-      return CategoryResult(success: false, message: body["message"] ?? "Add nahi hua");
+      return CategoryResult(success: false, message: body["message"] ?? "not added");
     } catch (e) {
       return CategoryResult(success: false, message: "Network error");
     }
@@ -81,7 +81,7 @@ class CategoryService {
       if (res.statusCode == 200 && body["success"] == true) {
         return CategoryResult(success: true, data: CategoryModel.fromJson(body["data"]));
       }
-      return CategoryResult(success: false, message: body["message"] ?? "Update nahi hua");
+      return CategoryResult(success: false, message: body["message"] ?? "not Updated");
     } catch (e) {
       return CategoryResult(success: false, message: "Network error");
     }

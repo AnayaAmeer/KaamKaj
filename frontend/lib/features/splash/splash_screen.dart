@@ -15,7 +15,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
 
-    Future.delayed(const Duration(seconds: 20), () {
+    Future.delayed(const Duration(seconds: 10), () {
       if (!mounted) return;
 
       Navigator.pushReplacement(
@@ -51,7 +51,7 @@ class _SplashScreenState extends State<SplashScreen> {
             const SizedBox(height: 20),
 
             const Text(
-              "Kaam Kaj",
+              "Kaam Kaaj",
               style: TextStyle(
                 fontSize: 36,
                 fontWeight: FontWeight.bold,

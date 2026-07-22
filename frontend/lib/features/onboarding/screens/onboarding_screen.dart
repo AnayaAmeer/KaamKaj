@@ -34,6 +34,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     },
   ];
 
+  void _goToRoleSelection() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const RoleSelectionScreen(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,7 +55,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(
-                onPressed: () {},
+                onPressed: _goToRoleSelection,
                 child: const Text(
                   "Skip",
                   style: TextStyle(color: Colors.amber),
@@ -153,12 +162,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         curve: Curves.easeInOut,
                       );
                     } else {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const RoleSelectionScreen(),
-                        ),
-                      );
+                      _goToRoleSelection();
                     }
                   },
                   child: Text(

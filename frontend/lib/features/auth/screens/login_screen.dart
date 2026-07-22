@@ -76,50 +76,67 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() => isLoading = true);
 
-    final result = await AuthService.login(email: email, password: password);
+   final result = await AuthService.login(email: email, password: password);
 
-    if (!mounted) return;
-    setState(() => isLoading = false);
+if (!mounted) return;
+setState(() => isLoading = false);
 
-    if (!result.success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(result.message),
-          backgroundColor: Colors.red.shade400,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-      );
-      return;
-    }
+if (!result.success) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(result.message),
+      backgroundColor: Colors.red.shade400,
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+    ),
+  );
+  return;
+}
 
-    final actualRole = result.role;
+// ✅ Success message dikhao
+ScaffoldMessenger.of(context).showSnackBar(
+  SnackBar(
+    content: Text(result.message), // "Login successful"
+    backgroundColor: Colors.green.shade600,
+    behavior: SnackBarBehavior.floating,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(10),
+    ),
+  ),
+);
 
-    switch (actualRole) {
-      case "service_provider":
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (_) => const ProviderHomeScreen()),
-          (route) => false,
-        );
-        break;
-      case "admin":
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (_) => const AdminHomeScreen()),
-          (route) => false,
-        );
-        break;
-      default:
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (_) => const CustomerHomeScreen()),
-          (route) => false,
-        );
-    }
-  }
+// Thora sa delay taake message dikh sake, phir navigate karo
+await Future.delayed(const Duration(milliseconds: 600));
+
+if (!mounted) return;
+
+final actualRole = result.role;
+
+switch (actualRole) {
+  case "service_provider":
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const ProviderHomeScreen()),
+      (route) => false,
+    );
+    break;
+  case "admin":
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const AdminHomeScreen()),
+      (route) => false,
+    );
+    break;
+  default:
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const CustomerHomeScreen()),
+      (route) => false,
+    );
+}
+ } 
 
   @override
   void dispose() {

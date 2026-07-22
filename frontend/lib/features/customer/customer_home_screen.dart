@@ -325,11 +325,11 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
               },
             ),
 
-            _drawerTile(
-              icon: Icons.favorite_rounded,
-              title: "Saved Services",
-              onTap: () {},
-            ),
+            // _drawerTile(
+            //   icon: Icons.favorite_rounded,
+            //   title: "Saved Services",
+            //   onTap: () {},
+            // ),
 
             _drawerTile(
               icon: Icons.work_rounded,
@@ -342,11 +342,11 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
               },
             ),
 
-            _drawerTile(
-              icon: Icons.settings_rounded,
-              title: "Settings",
-              onTap: () {},
-            ),
+            // _drawerTile(
+            //   icon: Icons.settings_rounded,
+            //   title: "Settings",
+            //   onTap: () {},
+            // ),
 
             const Divider(height: 24, indent: 20, endIndent: 20),
 
